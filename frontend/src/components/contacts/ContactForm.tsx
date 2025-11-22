@@ -4,27 +4,41 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import * as ShadcnSelect from '@/components/ui/select'
 import { useForm } from '@tanstack/react-form'
-import { CreateContactSchema, type CreateContactData } from '@/lib/schemas/contact-schema'
-import { X } from 'lucide-react'
+import {
+  CreateContactSchema,
+  type CreateContactData,
+} from '@/lib/schemas/contact-schema'
+import { X, Upload } from 'lucide-react'
 import { useContacts } from '@/hooks/contact-hook'
+import * as React from 'react'
+
+import { type Contact } from '@/lib/types/contact-types'
 
 interface ContactFormProps {
   onClose: () => void
+  contact?: Contact // If present, edit mode
 }
 
-export function ContactForm({ onClose }: ContactFormProps) {
-  const { createContact, isCreating } = useContacts()
+export function ContactForm({ onClose, contact }: ContactFormProps) {
+  const { createContact, updateContact, isCreating, isUpdating } = useContacts()
+
+  const isEditMode = !!contact
+
+  const [imagePreview, setImagePreview] = React.useState<string>(
+    contact?.avatar || '',
+  )
 
   const form = useForm({
     defaultValues: {
-      firstName: '',
-      lastName: '',
-      relationshipType: 'Familia' as const,
-      email: '',
-      phone: '',
-      birthday: '',
-      personalityTags: [] as string[],
-      notes: '',
+      avatar: contact?.avatar || '',
+      firstName: contact?.firstName || '',
+      lastName: contact?.lastName || '',
+      relationshipType: (contact?.category as any) || 'Familia',
+      email: contact?.email || '',
+      phone: contact?.phone || '',
+      birthday: contact?.birthday || '',
+      personalityTags: contact?.tags || [],
+      notes: contact?.notes || '',
     },
     onSubmit: async ({ value }) => {
       const result = CreateContactSchema.safeParse(value)
@@ -32,11 +46,24 @@ export function ContactForm({ onClose }: ContactFormProps) {
         console.error('Validation failed:', result.error)
         return
       }
-      createContact(result.data, {
-        onSuccess: () => {
-          onClose()
-        }
-      })
+      // Add avatar to data
+      const dataWithAvatar = {
+        ...result.data,
+        avatar: value.avatar || imagePreview,
+      }
+      if (isEditMode && contact) {
+        updateContact(contact.id, dataWithAvatar, {
+          onSuccess: () => {
+            onClose()
+          },
+        })
+      } else {
+        createContact(dataWithAvatar, {
+          onSuccess: () => {
+            onClose()
+          },
+        })
+      }
     },
   })
 
@@ -54,9 +81,13 @@ export function ContactForm({ onClose }: ContactFormProps) {
       <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-semibold text-gray-900">Agregar Nuevo Contacto</h2>
+            <h2 className="text-2xl font-semibold text-gray-900">
+              {isEditMode ? 'Editar Contacto' : 'Agregar Nuevo Contacto'}
+            </h2>
             <p className="text-sm text-gray-600 mt-1">
-              Agrega una nueva persona para hacer seguimiento a tu relación con ella
+              {isEditMode
+                ? 'Edita la información de este contacto.'
+                : 'Agrega una nueva persona para hacer seguimiento a tu relación con ella'}
             </p>
           </div>
           <Button
@@ -77,11 +108,79 @@ export function ContactForm({ onClose }: ContactFormProps) {
           }}
           className="p-6 space-y-6"
         >
+          {/* Image Input */}
+          <form.Field name="avatar">
+            {(field) => (
+              <div className="flex flex-col items-center p-6 bg-gradient-to-br from-red-50 to-orange-50 rounded-lg border-2 border-dashed border-red-200">
+                <Label
+                  htmlFor="avatar"
+                  className="text-sm font-semibold text-gray-900 mb-4"
+                >
+                  Imagen de Perfil
+                </Label>
+                {imagePreview && (
+                  <div className="mb-4">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                    />
+                  </div>
+                )}
+                <div className="w-full space-y-3">
+                  <label
+                    htmlFor="avatar"
+                    className="flex items-center justify-center gap-2 p-4 bg-white rounded-lg border border-red-200 cursor-pointer hover:bg-red-50 transition"
+                  >
+                    <Upload className="w-5 h-5 text-red-500" />
+                    <span className="text-sm font-medium text-gray-700">
+                      Selecciona una imagen
+                    </span>
+                    <Input
+                      id="avatar"
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          const reader = new FileReader()
+                          reader.onloadend = () => {
+                            setImagePreview(reader.result as string)
+                            field.handleChange(reader.result as string)
+                          }
+                          reader.readAsDataURL(file)
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="o pega una URL de imagen aquí"
+                    value={field.state.value || ''}
+                    onChange={(e) => {
+                      setImagePreview(e.target.value)
+                      field.handleChange(e.target.value)
+                    }}
+                    className="bg-white border-red-200 placeholder-gray-400"
+                  />
+                </div>
+                {field.state.meta.errors && field.state.meta.isTouched && (
+                  <p className="text-sm text-red-600 mt-3 font-medium">
+                    {field.state.meta.errors.join(', ')}
+                  </p>
+                )}
+              </div>
+            )}
+          </form.Field>
           {/* Name Field */}
           <form.Field name="firstName">
             {(field) => (
               <div>
-                <Label htmlFor="firstName" className="text-sm font-medium text-gray-900">
+                <Label
+                  htmlFor="firstName"
+                  className="text-sm font-medium text-gray-900"
+                >
                   Nombre *
                 </Label>
                 <Input
@@ -105,7 +204,10 @@ export function ContactForm({ onClose }: ContactFormProps) {
           <form.Field name="lastName">
             {(field) => (
               <div>
-                <Label htmlFor="lastName" className="text-sm font-medium text-gray-900">
+                <Label
+                  htmlFor="lastName"
+                  className="text-sm font-medium text-gray-900"
+                >
                   Apellido *
                 </Label>
                 <Input
@@ -129,7 +231,10 @@ export function ContactForm({ onClose }: ContactFormProps) {
           <form.Field name="relationshipType">
             {(field) => (
               <div>
-                <Label htmlFor="relationshipType" className="text-sm font-medium text-gray-900">
+                <Label
+                  htmlFor="relationshipType"
+                  className="text-sm font-medium text-gray-900"
+                >
                   Tipo de Relación *
                 </Label>
                 <ShadcnSelect.Select
@@ -141,7 +246,10 @@ export function ContactForm({ onClose }: ContactFormProps) {
                   </ShadcnSelect.SelectTrigger>
                   <ShadcnSelect.SelectContent>
                     {relationshipTypes.map((type) => (
-                      <ShadcnSelect.SelectItem key={type.value} value={type.value}>
+                      <ShadcnSelect.SelectItem
+                        key={type.value}
+                        value={type.value}
+                      >
                         {type.label}
                       </ShadcnSelect.SelectItem>
                     ))}
@@ -160,7 +268,10 @@ export function ContactForm({ onClose }: ContactFormProps) {
           <form.Field name="email">
             {(field) => (
               <div>
-                <Label htmlFor="email" className="text-sm font-medium text-gray-900">
+                <Label
+                  htmlFor="email"
+                  className="text-sm font-medium text-gray-900"
+                >
                   Email
                 </Label>
                 <Input
@@ -185,7 +296,10 @@ export function ContactForm({ onClose }: ContactFormProps) {
           <form.Field name="phone">
             {(field) => (
               <div>
-                <Label htmlFor="phone" className="text-sm font-medium text-gray-900">
+                <Label
+                  htmlFor="phone"
+                  className="text-sm font-medium text-gray-900"
+                >
                   Teléfono
                 </Label>
                 <Input
@@ -210,7 +324,10 @@ export function ContactForm({ onClose }: ContactFormProps) {
           <form.Field name="birthday">
             {(field) => (
               <div>
-                <Label htmlFor="birthday" className="text-sm font-medium text-gray-900">
+                <Label
+                  htmlFor="birthday"
+                  className="text-sm font-medium text-gray-900"
+                >
                   Cumpleaños
                 </Label>
                 <Input
@@ -234,7 +351,10 @@ export function ContactForm({ onClose }: ContactFormProps) {
           <form.Field name="personalityTags">
             {(field) => (
               <div>
-                <Label htmlFor="personalityTags" className="text-sm font-medium text-gray-900">
+                <Label
+                  htmlFor="personalityTags"
+                  className="text-sm font-medium text-gray-900"
+                >
                   Etiquetas de Personalidad
                 </Label>
                 <Input
@@ -267,7 +387,10 @@ export function ContactForm({ onClose }: ContactFormProps) {
           <form.Field name="notes">
             {(field) => (
               <div>
-                <Label htmlFor="notes" className="text-sm font-medium text-gray-900">
+                <Label
+                  htmlFor="notes"
+                  className="text-sm font-medium text-gray-900"
+                >
                   Notas
                 </Label>
                 <Textarea
@@ -293,14 +416,16 @@ export function ContactForm({ onClose }: ContactFormProps) {
             <Button type="button" variant="outline" onClick={onClose}>
               Cancelar
             </Button>
-            <form.Subscribe selector={(state) => ({ isSubmitting: state.isSubmitting })}>
+            <form.Subscribe
+              selector={(state) => ({ isSubmitting: state.isSubmitting })}
+            >
               {({ isSubmitting }) => (
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isCreating || isUpdating}
                   className="bg-red-400 hover:bg-red-500 text-white"
                 >
-                  Agregar Contacto
+                  {isEditMode ? 'Guardar Cambios' : 'Agregar Contacto'}
                 </Button>
               )}
             </form.Subscribe>

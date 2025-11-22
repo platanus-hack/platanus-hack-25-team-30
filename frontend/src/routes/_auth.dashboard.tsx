@@ -13,6 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+
 import * as React from 'react'
 import {
   Users,
@@ -31,6 +32,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/auth'
 import { CardStack } from '@/components/CardStack'
+import { contactsData } from '@/data/contact-data'
 
 export const Route = createFileRoute('/_auth/dashboard')({
   component: RouteComponent,
@@ -54,68 +56,23 @@ function RouteComponent() {
     { label: 'Recent Contact', value: 'lastContact' },
   ]
 
-  const mockUsers = [
-    {
-      id: 1,
-      name: 'Alonso Zamorano',
-      interactions: 156,
-      healthScore: 92,
-      lastContact: '2 days ago',
-      source: 'WhatsApp',
-      streak: 12,
-      responseTime: '< 1h',
-      communicationBalance: 'Balanced',
-      healthStatus: 'Healthy',
-    },
-    {
-      id: 2,
-      name: 'Nicolás Buzeta',
-      interactions: 43,
-      healthScore: 65,
-      lastContact: '3 weeks ago',
-      source: 'Email',
-      streak: 0,
-      responseTime: '2-3 days',
-      communicationBalance: 'You initiate more',
-      healthStatus: 'Moderate',
-    },
-    {
-      id: 3,
-      name: 'José Caceres',
-      interactions: 234,
-      healthScore: 88,
-      lastContact: '5 days ago',
-      source: 'Telegram',
-      streak: 8,
-      responseTime: '< 1h',
-      communicationBalance: 'Balanced',
-      healthStatus: 'Healthy',
-    },
-    {
-      id: 4,
-      name: 'Renata Silva',
-      interactions: 67,
-      healthScore: 98,
-      lastContact: '1 month ago',
-      source: 'WhatsApp',
-      streak: 0,
-      responseTime: '2-3 days',
-      communicationBalance: 'You initiate more',
-      healthStatus: 'Low',
-    },
-    {
-      id: 5,
-      name: 'Francisco Concha',
-      interactions: 98,
-      healthScore: 78,
-      lastContact: '1 week ago',
-      source: 'WhatsApp',
-      streak: 7,
-      responseTime: '1-2 days',
-      communicationBalance: 'Balanced',
-      healthStatus: 'Moderate',
-    },
-  ]
+  // Adapt contactsData to dashboard user format
+  const mockUsers = contactsData.map((c) => ({
+    id: c.id,
+    name: `${c.firstName} ${c.lastName}`,
+    interactions: c.totalInteractions,
+    healthScore: c.score,
+    lastContact: c.lastContact,
+    source: c.tags?.[2] || 'WhatsApp', // fallback
+    streak: 0, // Not available in data
+    responseTime: '< 1h', // Not available in data
+    communicationBalance: 'Balanced', // Not available in data
+    healthStatus:
+      c.score >= 85 ? 'Healthy' : c.score >= 60 ? 'Moderate' : 'Low',
+    avatar: c.avatar,
+    category: c.category,
+    tags: c.tags,
+  }))
 
   const mockTips: Array<{
     type: 'tip' | 'stat' | 'globalStat' | 'reminder'
@@ -314,12 +271,32 @@ function RouteComponent() {
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gray-200 rounded-full" />
+                  {user.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-white shadow"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 bg-gray-200 rounded-full" />
+                  )}
                   <div>
                     <h3 className="font-semibold text-gray-900">{user.name}</h3>
                     <p className="text-xs text-gray-500">
                       {user.interactions} interactions
                     </p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {user.tags &&
+                        user.tags.map((tag: string, i: number) => (
+                          <Badge
+                            key={i}
+                            variant="outline"
+                            className="bg-white text-xs px-2 py-0.5 border-gray-200"
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                    </div>
                   </div>
                 </div>
                 <Popover>

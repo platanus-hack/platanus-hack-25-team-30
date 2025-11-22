@@ -22,12 +22,14 @@ import {
 } from 'lucide-react'
 import { Textarea } from '@/components/ui/textarea'
 import * as React from 'react'
+import { ContactForm } from '@/components/contacts/ContactForm'
 
 export const Route = createFileRoute('/_auth/contacts/$contactId')({
   component: ContactShowComponent,
 })
 
 function ContactShowComponent() {
+  const [showEditForm, setShowEditForm] = React.useState(false)
   const { contactId } = Route.useParams()
   const navigate = useNavigate()
 
@@ -35,7 +37,7 @@ function ContactShowComponent() {
 
   const mockInitialMessage = `Oye cabro wn, donde has estado? En lo prado???!!! Andate inmediatamente de esta casa porfa.`
   const mockAnswers = [
-    "Lo que hiciste fue una falta grave, no puedo creer que me hayas mentido así.",
+    'Lo que hiciste fue una falta grave, no puedo creer que me hayas mentido así.',
     'Necesitamos hablar seriamente sobre lo que pasó la última vez.',
     'Siento que nuestra relación ha cambiado y no sé cómo manejarlo.',
     '¿Por qué nunca me dices la verdad sobre lo que sientes?',
@@ -150,7 +152,7 @@ function ContactShowComponent() {
           className="mb-6"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Contacts
+          Volver a contactos
         </Button>
 
         <Card className="p-8 mb-6">
@@ -192,18 +194,22 @@ function ContactShowComponent() {
                 <div className="flex gap-6 text-sm text-gray-600">
                   <div className="flex items-center gap-1">
                     <MessageCircle className="w-4 h-4" />
-                    <span>{contact.totalInteractions} interactions</span>
+                    <span>{contact.totalInteractions} interacciones</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
-                    <span>Last: {contact.lastContact}</span>
+                    <span>Último contacto: {contact.lastContact}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="flex gap-2">
-              <Button variant="outline" size="icon">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setShowEditForm(true)}
+              >
                 <Edit className="w-4 h-4" />
               </Button>
               <Button
@@ -214,6 +220,12 @@ function ContactShowComponent() {
                 <Trash2 className="w-4 h-4" />
               </Button>
             </div>
+            {showEditForm && contact && (
+              <ContactForm
+                contact={contact}
+                onClose={() => setShowEditForm(false)}
+              />
+            )}
           </div>
         </Card>
 
@@ -222,11 +234,11 @@ function ContactShowComponent() {
           <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="stats" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
-              Stats
+              Estadísticas
             </TabsTrigger>
             <TabsTrigger value="simulation" className="flex items-center gap-2">
               <Sparkles className="w-4 h-4" />
-              Simulation
+              Simulación IA
             </TabsTrigger>
             <TabsTrigger value="chats" className="flex items-center gap-2">
               <MessageCircle className="w-4 h-4" />
@@ -234,7 +246,7 @@ function ContactShowComponent() {
             </TabsTrigger>
             <TabsTrigger value="reminders" className="flex items-center gap-2">
               <List className="w-4 h-4" />
-              Reminders
+              Recordatorios
             </TabsTrigger>
           </TabsList>
 
