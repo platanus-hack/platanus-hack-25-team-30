@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
+import { API_BASE_URL } from './integrations/api/load-env.ts'
 
 import * as TanStackQueryProvider from './integrations/tanstack-query/root-provider.tsx'
 
@@ -9,6 +10,9 @@ import { routeTree } from './routeTree.gen'
 
 import './styles.css'
 import reportWebVitals from './reportWebVitals.ts'
+
+// Print the API base URL to verify it's loaded correctly
+console.log('API_BASE_URL:', API_BASE_URL)
 
 // Create a new router instance
 
@@ -31,10 +35,7 @@ declare module '@tanstack/react-router' {
 
 function AuthenticatedApp() {
   return (
-    <RouterProvider
-      router={router}
-      context={TanStackQueryProviderContext}
-    />
+    <RouterProvider router={router} context={TanStackQueryProviderContext} />
   )
 }
 
