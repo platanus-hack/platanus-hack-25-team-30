@@ -1,18 +1,15 @@
+import { useForm } from '@tanstack/react-form'
+import { AlertCircle, Upload, X } from 'lucide-react'
+import * as React from 'react'
+import type {Contact} from '@/lib/types/contact-types';
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import * as ShadcnSelect from '@/components/ui/select'
-import { useForm } from '@tanstack/react-form'
-import {
-  CreateContactSchema,
-  type CreateContactData,
-} from '@/lib/schemas/contact-schema'
-import { X, Upload } from 'lucide-react'
+import { CreateContactSchema } from '@/lib/schemas/contact-schema'
 import { useContacts } from '@/hooks/contact-hook'
-import * as React from 'react'
 
-import { type Contact } from '@/lib/types/contact-types'
 
 interface ContactFormProps {
   onClose: () => void
@@ -28,6 +25,8 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
     contact?.avatar || '',
   )
 
+  const [tagInputValue, setTagInputValue] = React.useState('')
+
   const form = useForm({
     defaultValues: {
       avatar: contact?.avatar || '',
@@ -40,7 +39,7 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
       personalityTags: contact?.tags || [],
       notes: contact?.notes || '',
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: ({ value }) => {
       const result = CreateContactSchema.safeParse(value)
       if (!result.success) {
         console.error('Validation failed:', result.error)
@@ -52,7 +51,7 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
         avatar: value.avatar || imagePreview,
       }
 
-      if (isEditMode && contact) {
+      if (isEditMode) {
         updateContact(
           {
             id: contact.id,
@@ -118,7 +117,7 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
           {/* Image Input */}
           <form.Field name="avatar">
             {(field) => (
-              <div className="flex flex-col items-center p-6 bg-gradient-to-br from-red-50 to-orange-50 rounded-lg border-2 border-dashed border-red-200">
+              <div className="flex flex-col items-center p-6 bg-linear-to-br from-red-50 to-orange-50 rounded-lg border-2 border-dashed border-red-200">
                 <Label
                   htmlFor="avatar"
                   className="text-sm font-semibold text-gray-900 mb-4"
@@ -172,16 +171,31 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                     className="bg-white border-red-200 placeholder-gray-400"
                   />
                 </div>
-                {field.state.meta.errors && field.state.meta.isTouched && (
-                  <p className="text-sm text-red-600 mt-3 font-medium">
-                    {field.state.meta.errors.join(', ')}
-                  </p>
+                {field.state.meta.errors.length > 0 && field.state.meta.isTouched && (
+                  <div className="flex items-start gap-2 mt-3 text-red-600">
+                    <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                    <p className="text-sm font-medium">
+                      {field.state.meta.errors.join(', ')}
+                    </p>
+                  </div>
                 )}
               </div>
             )}
           </form.Field>
+
           {/* Name Field */}
-          <form.Field name="firstName">
+          <form.Field
+            name="firstName"
+            validators={{
+              onChange: ({ value }) => {
+                const result =
+                  CreateContactSchema.shape.firstName.safeParse(value)
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message
+              },
+            }}
+          >
             {(field) => (
               <div>
                 <Label
@@ -196,19 +210,39 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
                   placeholder="John Doe"
-                  className="mt-2"
+                  className={`mt-2 ${
+                    field.state.meta.errors.length > 0 &&
+                    field.state.meta.isTouched
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : ''
+                  }`}
                 />
-                {field.state.meta.errors && field.state.meta.isTouched && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {field.state.meta.errors.join(', ')}
-                  </p>
-                )}
+                {field.state.meta.errors.length > 0 &&
+                  field.state.meta.isTouched && (
+                    <div className="flex items-start gap-2 mt-2 text-red-600">
+                      <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                      <p className="text-sm">
+                        {field.state.meta.errors.join(', ')}
+                      </p>
+                    </div>
+                  )}
               </div>
             )}
           </form.Field>
 
           {/* Last Name Field */}
-          <form.Field name="lastName">
+          <form.Field
+            name="lastName"
+            validators={{
+              onChange: ({ value }) => {
+                const result =
+                  CreateContactSchema.shape.lastName.safeParse(value)
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message
+              },
+            }}
+          >
             {(field) => (
               <div>
                 <Label
@@ -223,13 +257,22 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
                   placeholder="Smith"
-                  className="mt-2"
+                  className={`mt-2 ${
+                    field.state.meta.errors.length > 0 &&
+                    field.state.meta.isTouched
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : ''
+                  }`}
                 />
-                {field.state.meta.errors && field.state.meta.isTouched && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {field.state.meta.errors.join(', ')}
-                  </p>
-                )}
+                {field.state.meta.errors.length > 0 &&
+                  field.state.meta.isTouched && (
+                    <div className="flex items-start gap-2 mt-2 text-red-600">
+                      <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                      <p className="text-sm">
+                        {field.state.meta.errors.join(', ')}
+                      </p>
+                    </div>
+                  )}
               </div>
             )}
           </form.Field>
@@ -248,8 +291,14 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                   value={field.state.value}
                   onValueChange={(value) => field.handleChange(value as any)}
                 >
-                  <ShadcnSelect.SelectTrigger className="mt-2">
-                    <ShadcnSelect.SelectValue placeholder="Select type" />
+                  <ShadcnSelect.SelectTrigger
+                    className={`mt-2 ${
+                      field.state.meta.errors.length > 0 && field.state.meta.isTouched
+                        ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                        : ''
+                    }`}
+                  >
+                    <ShadcnSelect.SelectValue placeholder="Selecciona un tipo" />
                   </ShadcnSelect.SelectTrigger>
                   <ShadcnSelect.SelectContent>
                     {relationshipTypes.map((type) => (
@@ -262,17 +311,31 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                     ))}
                   </ShadcnSelect.SelectContent>
                 </ShadcnSelect.Select>
-                {field.state.meta.errors && field.state.meta.isTouched && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {field.state.meta.errors.join(', ')}
-                  </p>
+                {field.state.meta.errors.length > 0 && field.state.meta.isTouched && (
+                  <div className="flex items-start gap-2 mt-2 text-red-600">
+                    <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                    <p className="text-sm">
+                      {field.state.meta.errors.join(', ')}
+                    </p>
+                  </div>
                 )}
               </div>
             )}
           </form.Field>
 
           {/* Email */}
-          <form.Field name="email">
+          <form.Field
+            name="email"
+            validators={{
+              onChange: ({ value }) => {
+                if (!value) return undefined // email is optional
+                const result = CreateContactSchema.shape.email.safeParse(value)
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message
+              },
+            }}
+          >
             {(field) => (
               <div>
                 <Label
@@ -288,13 +351,22 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
                   placeholder="john@example.com"
-                  className="mt-2"
+                  className={`mt-2 ${
+                    field.state.meta.errors.length > 0 &&
+                    field.state.meta.isTouched
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : ''
+                  }`}
                 />
-                {field.state.meta.errors && field.state.meta.isTouched && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {field.state.meta.errors.join(', ')}
-                  </p>
-                )}
+                {field.state.meta.errors.length > 0 &&
+                  field.state.meta.isTouched && (
+                    <div className="flex items-start gap-2 mt-2 text-red-600">
+                      <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                      <p className="text-sm">
+                        {field.state.meta.errors.join(', ')}
+                      </p>
+                    </div>
+                  )}
               </div>
             )}
           </form.Field>
@@ -316,13 +388,22 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
                   placeholder="+1 234-567-8900"
-                  className="mt-2"
+                  className={`mt-2 ${
+                    field.state.meta.errors.length > 0 &&
+                    field.state.meta.isTouched
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : ''
+                  }`}
                 />
-                {field.state.meta.errors && field.state.meta.isTouched && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {field.state.meta.errors.join(', ')}
-                  </p>
-                )}
+                {field.state.meta.errors.length > 0 &&
+                  field.state.meta.isTouched && (
+                    <div className="flex items-start gap-2 mt-2 text-red-600">
+                      <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                      <p className="text-sm">
+                        {field.state.meta.errors.join(', ')}
+                      </p>
+                    </div>
+                  )}
               </div>
             )}
           </form.Field>
@@ -335,7 +416,7 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                   htmlFor="birthday"
                   className="text-sm font-medium text-gray-900"
                 >
-                  Cumpleaños
+                  Cumpleaños *
                 </Label>
                 <Input
                   id="birthday"
@@ -343,51 +424,136 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
-                  className="mt-2"
+                  className={`mt-2 ${
+                    field.state.meta.errors.length > 0 &&
+                    field.state.meta.isTouched
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : ''
+                  }`}
                 />
-                {field.state.meta.errors && field.state.meta.isTouched && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {field.state.meta.errors.join(', ')}
-                  </p>
-                )}
+                {field.state.meta.errors.length > 0 &&
+                  field.state.meta.isTouched && (
+                    <div className="flex items-start gap-2 mt-2 text-red-600">
+                      <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                      <p className="text-sm">
+                        {field.state.meta.errors.join(', ')}
+                      </p>
+                    </div>
+                  )}
               </div>
             )}
           </form.Field>
 
           {/* Personality Tags */}
-          <form.Field name="personalityTags">
-            {(field) => (
-              <div>
-                <Label
-                  htmlFor="personalityTags"
-                  className="text-sm font-medium text-gray-900"
-                >
-                  Etiquetas de Personalidad
-                </Label>
-                <Input
-                  id="personalityTags"
-                  value={field.state.value.join(', ')}
-                  onChange={(e) => {
-                    const tags = e.target.value
-                      .split(',')
-                      .map((tag) => tag.trim())
-                      .filter((tag) => tag.length > 0)
-                    field.handleChange(tags)
-                  }}
-                  onBlur={field.handleBlur}
-                  placeholder="Introvertido, Amante de los libros, Experto en tecnología (separados por comas)"
-                  className="mt-2"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Agrega rasgos para ayudar a la IA a entender su personalidad
-                </p>
-                {field.state.meta.errors && field.state.meta.isTouched && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {field.state.meta.errors.join(', ')}
+          <form.Field
+            name="personalityTags"
+            validators={{
+              onChange: ({ value }) => {
+                const result =
+                  CreateContactSchema.shape.personalityTags.safeParse(value)
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message
+              },
+            }}
+          >
+            {(field) => {
+              const addTag = (tag: string) => {
+                const trimmedTag = tag.trim()
+                if (trimmedTag && !field.state.value.includes(trimmedTag)) {
+                  field.handleChange([...field.state.value, trimmedTag])
+                }
+                setTagInputValue('')
+              }
+
+              const removeTag = (tagToRemove: string) => {
+                field.handleChange(
+                  field.state.value.filter((tag) => tag !== tagToRemove),
+                )
+              }
+
+              const handleKeyDown = (
+                e: React.KeyboardEvent<HTMLInputElement>,
+              ) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  addTag(tagInputValue)
+                }
+              }
+
+              console.log(field.state.meta.errors)
+
+              return (
+                <div>
+                  <Label
+                    htmlFor="personalityTags"
+                    className="text-sm font-medium text-gray-900"
+                  >
+                    Etiquetas de Personalidad *
+                  </Label>
+
+                  {/* Display tags */}
+                  {field.state.value.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2 mb-2">
+                      {field.state.value.map((tag, index) => (
+                        <div
+                          key={index}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-50 border border-red-200 rounded-lg text-sm text-gray-700"
+                        >
+                          <span>{tag}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeTag(tag)}
+                            className="ml-1 text-red-400 hover:text-red-600 transition-colors"
+                            aria-label={`Eliminar ${tag}`}
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Input for new tags */}
+                  <Input
+                    id="personalityTags"
+                    value={tagInputValue}
+                    onChange={(e) => setTagInputValue(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    onBlur={() => {
+                      if (tagInputValue.trim()) {
+                        addTag(tagInputValue)
+                      }
+                    }}
+                    placeholder="Escribe una etiqueta y presiona Enter"
+                    className={`mt-2 ${
+                      field.state.meta.errors.length > 0 &&
+                      field.state.meta.isTouched
+                        ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                        : ''
+                    }`}
+                  />
+
+                  <p className="text-xs text-gray-500 mt-1">
+                    Presiona{' '}
+                    <kbd className="px-1.5 py-0.5 text-xs font-semibold bg-gray-100 border border-gray-300 rounded">
+                      Enter
+                    </kbd>{' '}
+                    para agregar cada etiqueta
                   </p>
-                )}
-              </div>
-            )}
+
+                  {field.state.meta.errors.length > 0 &&
+                    field.state.meta.isTouched && (
+                      <div className="flex items-start gap-2 mt-2 text-red-600">
+                        <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                        <p className="text-sm">
+                          {field.state.meta.errors.join(', ')}
+                        </p>
+                      </div>
+                    )}
+                </div>
+              )
+            }}
           </form.Field>
 
           {/* Notes */}
@@ -407,13 +573,22 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                   onBlur={field.handleBlur}
                   placeholder="Important information about this person..."
                   rows={4}
-                  className="mt-2"
+                  className={`mt-2 ${
+                    field.state.meta.errors.length > 0 &&
+                    field.state.meta.isTouched
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : ''
+                  }`}
                 />
-                {field.state.meta.errors && field.state.meta.isTouched && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {field.state.meta.errors.join(', ')}
-                  </p>
-                )}
+                {field.state.meta.errors.length > 0 &&
+                  field.state.meta.isTouched && (
+                    <div className="flex items-start gap-2 mt-2 text-red-600">
+                      <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                      <p className="text-sm">
+                        {field.state.meta.errors.join(', ')}
+                      </p>
+                    </div>
+                  )}
               </div>
             )}
           </form.Field>

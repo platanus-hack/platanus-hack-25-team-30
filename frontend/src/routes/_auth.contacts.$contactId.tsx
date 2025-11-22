@@ -1,27 +1,27 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import {
+  ArrowLeft,
+  BarChart3,
+  Bell,
+  Calendar,
+  Clock,
+  Edit,
+  Gift,
+  List,
+  Mail,
+  MessageCircle,
+  Phone,
+  Sparkles,
+  Trash2,
+  TrendingUp,
+} from 'lucide-react'
+import * as React from 'react'
 import { contactsData } from '@/data/contact-data'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  ArrowLeft,
-  MessageCircle,
-  Phone,
-  Mail,
-  Calendar,
-  TrendingUp,
-  Clock,
-  Edit,
-  Trash2,
-  BarChart3,
-  Sparkles,
-  List,
-  Gift,
-  Bell,
-} from 'lucide-react'
 import { Textarea } from '@/components/ui/textarea'
-import * as React from 'react'
 import { ContactForm } from '@/components/contacts/ContactForm'
 
 export const Route = createFileRoute('/_auth/contacts/$contactId')({
@@ -45,7 +45,7 @@ function ContactShowComponent() {
   ]
 
   const [messages, setMessages] = React.useState<
-    { from: 'user' | 'contact'; text: string; isLoading?: boolean }[]
+    Array<{ from: 'user' | 'contact'; text: string; isLoading?: boolean }>
   >([{ from: 'contact', text: mockInitialMessage }])
 
   const [input, setInput] = React.useState('')

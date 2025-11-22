@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Upload, CheckCircle2, AlertCircle } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useImportWhatsApp } from '@/hooks/import-hook'
 import { useContacts } from '@/hooks/contact-hook'
@@ -13,50 +13,50 @@ export function WhatsAppImport() {
 
   const validateAndExtractFile = async (file: File): Promise<File | null> => {
     setFileError(null)
-    
+
     if (file.name.endsWith('.txt')) {
       return file
     }
-    
+
     if (file.name.endsWith('.zip')) {
       try {
         const JSZip = (await import('jszip')).default
         const zip = new JSZip()
         const contents = await zip.loadAsync(file)
-        
+
         const files = Object.keys(contents.files).filter(
-          name => !contents.files[name].dir
+          (name) => !contents.files[name].dir,
         )
-        
+
         if (files.length === 0) {
           setFileError('El archivo ZIP está vacío')
           return null
         }
-        
+
         if (files.length > 1) {
           setFileError('El archivo ZIP debe contener solo un archivo .txt')
           return null
         }
-        
+
         if (!files[0].endsWith('.txt')) {
           setFileError('El archivo dentro del ZIP debe ser un .txt')
           return null
         }
-        
+
         const txtFileName = files[0]
         const txtFileContent = await contents.files[txtFileName].async('blob')
-        
+
         const extractedFile = new File([txtFileContent], txtFileName, {
           type: 'text/plain',
         })
-        
+
         return extractedFile
       } catch (error) {
         setFileError('Error al leer el archivo ZIP')
         return null
       }
     }
-    
+
     setFileError('Solo se aceptan archivos .txt o .zip')
     return null
   }
@@ -65,7 +65,7 @@ export function WhatsAppImport() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
       const extractedFile = await validateAndExtractFile(file)
-      
+
       if (extractedFile) {
         setSelectedFile(extractedFile)
       } else {
@@ -77,7 +77,7 @@ export function WhatsAppImport() {
 
   const handleImport = () => {
     if (!selectedContactId || !selectedFile) return
-    
+
     importMutation.mutate(
       { contactId: selectedContactId, file: selectedFile },
       {
@@ -85,7 +85,7 @@ export function WhatsAppImport() {
           setSelectedContactId('')
           setSelectedFile(null)
         },
-      }
+      },
     )
   }
 
@@ -107,8 +107,13 @@ export function WhatsAppImport() {
           <ol className="space-y-2 text-gray-700 list-decimal list-inside">
             <li>Abre WhatsApp en tu teléfono</li>
             <li>Ve al chat que deseas exportar</li>
-            <li>Toca en Informacion del contacto → Exportar chat → Sin media</li>
-            <li>Sube el archivo ZIP descargado o el archivo .txt (si lo descomprimiste)</li>
+            <li>
+              Toca en Informacion del contacto → Exportar chat → Sin media
+            </li>
+            <li>
+              Sube el archivo ZIP descargado o el archivo .txt (si lo
+              descomprimiste)
+            </li>
           </ol>
         </div>
 
@@ -117,9 +122,12 @@ export function WhatsAppImport() {
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
             <CheckCircle2 className="text-green-600 mt-0.5" size={20} />
             <div>
-              <p className="font-medium text-green-900">¡Chat importado exitosamente!</p>
+              <p className="font-medium text-green-900">
+                ¡Chat importado exitosamente!
+              </p>
               <p className="text-sm text-green-700 mt-1">
-                El chat se ha procesado y está disponible en tu lista de contactos.
+                El chat se ha procesado y está disponible en tu lista de
+                contactos.
               </p>
             </div>
           </div>
@@ -131,7 +139,8 @@ export function WhatsAppImport() {
             <div>
               <p className="font-medium text-red-900">Error al importar</p>
               <p className="text-sm text-red-700 mt-1">
-                {importMutation.error?.message || 'Ocurrió un error al procesar el archivo'}
+                {importMutation.error?.message ||
+                  'Ocurrió un error al procesar el archivo'}
               </p>
             </div>
           </div>
@@ -188,7 +197,9 @@ export function WhatsAppImport() {
         {/* Import Button */}
         <Button
           onClick={handleImport}
-          disabled={!selectedContactId || !selectedFile || importMutation.isPending}
+          disabled={
+            !selectedContactId || !selectedFile || importMutation.isPending
+          }
           className="w-full bg-pink-300 hover:bg-pink-400 text-white py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {importMutation.isPending ? 'Importando...' : 'Importar Chat'}

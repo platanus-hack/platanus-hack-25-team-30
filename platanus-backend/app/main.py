@@ -18,7 +18,7 @@ app = FastAPI(dependencies=[Depends(get_user_token_header)])
 
 origins = [
     "http://localhost",
-    "http://localhost:8080",
+    "http://localhost:3000",
 ]
 
 app.add_middleware(

@@ -1,7 +1,9 @@
 import type { CreateContactData } from '@/lib/schemas/contact-schema'
-import type { CreateContactPayload, Contact } from '@/lib/types/contact-types'
+import type { Contact, CreateContactPayload } from '@/lib/types/contact-types'
 
-export function createContactPayload(data: CreateContactData): CreateContactPayload {
+export function createContactPayload(
+  data: CreateContactData,
+): CreateContactPayload {
   return {
     first_name: data.firstName,
     last_name: data.lastName,
@@ -14,7 +16,9 @@ export function createContactPayload(data: CreateContactData): CreateContactPayl
   }
 }
 
-export function updateContactPayload(data: Partial<CreateContactData>): Partial<CreateContactPayload> {
+export function updateContactPayload(
+  data: Partial<CreateContactData>,
+): Partial<CreateContactPayload> {
   const payload: Partial<CreateContactPayload> = {}
 
   if (data.firstName !== undefined) {

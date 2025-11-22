@@ -1,7 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { contactsApi } from '@/integrations/api/contact-api'
-import { createContactPayload, updateContactPayload } from '@/lib/mappers/contact-mappers'
 import type { CreateContactData } from '@/lib/schemas/contact-schema'
+import { contactsApi } from '@/integrations/api/contact-api'
+import {
+  createContactPayload,
+  updateContactPayload,
+} from '@/lib/mappers/contact-mappers'
 
 export function useContacts() {
   const queryClient = useQueryClient()
@@ -14,6 +17,7 @@ export function useContacts() {
   const createMutation = useMutation({
     mutationFn: (data: CreateContactData) => {
       const payload = createContactPayload(data)
+      return
       return contactsApi.create(payload)
     },
     onSuccess: () => {
@@ -46,4 +50,5 @@ export function useContacts() {
     deleteContact: deleteMutation.mutate,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
-}}
+  }
+}

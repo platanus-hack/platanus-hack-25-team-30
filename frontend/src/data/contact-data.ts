@@ -1,6 +1,6 @@
 import type { Contact } from '@/lib/types/contact-types'
 
-export const contactsData: Contact[] = [
+export const contactsData: Array<Contact> = [
   {
     id: '1',
     firstName: 'Sarah',

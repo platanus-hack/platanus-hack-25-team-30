@@ -11,17 +11,17 @@ export interface Contact {
   lastContact: string
   lastConversation: string
   totalInteractions: number
-  tags: string[]
+  tags: Array<string>
   notes: string
 }
 
 export interface CreateContactPayload {
-  first_name: string,
-  last_name: string,
-  relationship_type: string,
-  email: string,
-  phone: string,
-  birthday: string,
-  personality_tags: string[],
-  notes: string,
+  first_name: string
+  last_name: string
+  relationship_type: string
+  email: string
+  phone: string
+  birthday: string
+  personality_tags: Array<string>
+  notes: string
 }

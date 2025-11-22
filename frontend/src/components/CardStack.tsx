@@ -1,13 +1,13 @@
 import * as React from 'react'
-import { Card } from '@/components/ui/card'
 import {
+  Bell,
+  Calendar,
   ChevronLeft,
   ChevronRight,
   Lightbulb,
   TrendingUp,
-  Calendar,
-  Bell,
 } from 'lucide-react'
+import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
 interface CardData {
@@ -18,7 +18,7 @@ interface CardData {
 }
 
 interface CardStackProps {
-  cards: CardData[]
+  cards: Array<CardData>
   maxVisibleCards?: number
   autoPlay?: boolean
   autoPlayInterval?: number

@@ -2,8 +2,15 @@ import * as React from 'react'
 
 export interface AuthContext {
   isAuthenticated: boolean
-  login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>
-  register: (username: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  login: (
+    username: string,
+    password: string,
+  ) => Promise<{ success: boolean; error?: string }>
+  register: (
+    username: string,
+    email: string,
+    password: string,
+  ) => Promise<{ success: boolean; error?: string }>
   logout: () => Promise<void>
   user: string | null
 }
@@ -21,15 +28,15 @@ interface User {
 }
 
 function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-function getUserDB(): User[] {
+function getUserDB(): Array<User> {
   const db = localStorage.getItem(dbKey)
   return db ? JSON.parse(db) : []
 }
 
-function saveUserDB(users: User[]) {
+function saveUserDB(users: Array<User>) {
   localStorage.setItem(dbKey, JSON.stringify(users))
 }
 
@@ -54,52 +61,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
   }, [])
 
-  const login = React.useCallback(async (username: string, password: string) => {
-    await sleep(500)
+  const login = React.useCallback(
+    async (username: string, password: string) => {
+      await sleep(500)
 
-    const users = getUserDB()
-    const foundUser = users.find(u => u.username === username && u.password === password)
-    
-    if (!foundUser) {
-      return { success: false, error: 'Invalid username or password' }
-    }
+      const users = getUserDB()
+      const foundUser = users.find(
+        (u) => u.username === username && u.password === password,
+      )
 
-    setStoredUser(username)
-    setUser(username)
-    return { success: true }
-  }, [])
+      if (!foundUser) {
+        return { success: false, error: 'Invalid username or password' }
+      }
 
-  const register = React.useCallback(async (username: string, email: string, password: string) => {
-    await sleep(500)
+      setStoredUser(username)
+      setUser(username)
+      return { success: true }
+    },
+    [],
+  )
 
-    const users = getUserDB()
-    
-    // Check if username already exists
-    if (users.some(u => u.username === username)) {
-      return { success: false, error: 'Username already exists' }
-    }
+  const register = React.useCallback(
+    async (username: string, email: string, password: string) => {
+      await sleep(500)
 
-    // Check if email already exists
-    if (users.some(u => u.email === email)) {
-      return { success: false, error: 'Email already exists' }
-    }
+      const users = getUserDB()
 
-    // Add new user
-    users.push({ username, email, password })
-    saveUserDB(users)
+      // Check if username already exists
+      if (users.some((u) => u.username === username)) {
+        return { success: false, error: 'Username already exists' }
+      }
 
-    // Auto login after registration
-    setStoredUser(username)
-    setUser(username)
-    return { success: true }
-  }, [])
+      // Check if email already exists
+      if (users.some((u) => u.email === email)) {
+        return { success: false, error: 'Email already exists' }
+      }
+
+      // Add new user
+      users.push({ username, email, password })
+      saveUserDB(users)
+
+      // Auto login after registration
+      setStoredUser(username)
+      setUser(username)
+      return { success: true }
+    },
+    [],
+  )
 
   React.useEffect(() => {
     setUser(getStoredUser())
   }, [])
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, register }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, user, login, logout, register }}
+    >
       {children}
     </AuthContext.Provider>
   )
