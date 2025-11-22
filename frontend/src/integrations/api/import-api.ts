@@ -1,15 +1,25 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 export const importApi = {
-  async importWhatsApp(contactId: string, file: File): Promise<void> {
+  async importWhatsApp(
+    contactId: string,
+    file: File,
+    userToken: string,
+  ): Promise<void> {
     const formData = new FormData()
     formData.append('file', file)
     formData.append('contact_id', contactId)
 
-    const response = await fetch(`${API_BASE_URL}/import/whatsapp`, {
-      method: 'POST',
-      body: formData,
-    })
+    const response = await fetch(
+      `${API_BASE_URL}/contacts/${contactId}/records/integrations/whatsapp/upload`,
+      {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'User-Token': userToken,
+        },
+      },
+    )
 
     if (!response.ok) {
       const error = await response.json()

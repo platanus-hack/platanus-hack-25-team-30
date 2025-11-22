@@ -1,10 +1,15 @@
 import { useState } from 'react'
+import { useStore } from '@tanstack/react-store'
 import { AlertCircle, CheckCircle2, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useImportWhatsApp } from '@/hooks/import-hook'
 import { useContacts } from '@/hooks/contact-hook'
+import { authStore } from '@/lib/stores/auth-store'
 
 export function WhatsAppImport() {
+  const state = useStore(authStore)
+  if (!state) return null
+  const { token } = state
   const [selectedContactId, setSelectedContactId] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
@@ -62,7 +67,7 @@ export function WhatsAppImport() {
   }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+    if (e.target.files) {
       const file = e.target.files[0]
       const extractedFile = await validateAndExtractFile(file)
 
@@ -79,7 +84,11 @@ export function WhatsAppImport() {
     if (!selectedContactId || !selectedFile) return
 
     importMutation.mutate(
-      { contactId: selectedContactId, file: selectedFile },
+      {
+        contactId: selectedContactId,
+        file: selectedFile,
+        userToken: token,
+      },
       {
         onSuccess: () => {
           setSelectedContactId('')
@@ -139,8 +148,7 @@ export function WhatsAppImport() {
             <div>
               <p className="font-medium text-red-900">Error al importar</p>
               <p className="text-sm text-red-700 mt-1">
-                {importMutation.error?.message ||
-                  'Ocurrió un error al procesar el archivo'}
+                {importMutation.error.message}
               </p>
             </div>
           </div>
