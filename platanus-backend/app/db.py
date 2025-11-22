@@ -18,11 +18,12 @@ class Person(Model):
     user: fields.ForeignKeyRelation[User] = fields.ForeignKeyField(
         "models.User", related_name="persons"
     )
+    photo = fields.BinaryField(null=True)
     first_name = fields.CharField(max_length=255)
     last_name = fields.CharField(max_length=255)
     relationship_type = fields.CharField(max_length=50)
-    email = fields.CharField(max_length=255)
-    phone = fields.CharField(max_length=50)
+    email = fields.CharField(max_length=255, null=True)
+    phone = fields.CharField(max_length=50, null=True)
     birthday = fields.DateField()
     personality_tags = fields.JSONField()
     notes = fields.TextField()

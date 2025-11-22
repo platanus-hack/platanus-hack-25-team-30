@@ -1,9 +1,9 @@
 import asyncio
 from datetime import date
-from typing import Annotated, List, Literal
+from typing import Annotated, List, Literal, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, File, HTTPException
+from pydantic import BaseModel, Field
 
 from app.db import Person as PersonModel
 from app.db import User
@@ -30,14 +30,15 @@ RELATIONSHIP_TYPES = Literal[
 
 
 class Person(BaseModel):
-    first_name: str
-    last_name: str
-    relationship_type: RELATIONSHIP_TYPES
-    email: str
-    phone: str
-    birthday: date
-    personality_tags: List[str]
-    notes: str
+    first_name: str = Field(examples=["Eduardo"])
+    last_name: str = Field(examples=["Caceres"])
+    photo: Annotated[bytes | None, File()] = Field(default=None, examples=[None])
+    relationship_type: RELATIONSHIP_TYPES = Field(examples=[relationship_types[0]])
+    email: Optional[str] = Field(default=None, examples=["eduardo.caceres@platanus.cl"])
+    phone: Optional[str] = Field(default=None, examples=["+56 9 2345 1223"])
+    birthday: date = Field(examples=[date(1990, 5, 21)])
+    personality_tags: List[str] = Field(default=[], examples=[["neurotico"]])
+    notes: str = Field(default="", examples=[""])
 
 
 class PersonResponse(Person):
@@ -58,6 +59,7 @@ async def create_person(
         user=user,
         first_name=person.first_name,
         last_name=person.last_name,
+        photo=person.photo,
         relationship_type=person.relationship_type,
         email=person.email,
         phone=person.phone,
@@ -69,17 +71,7 @@ async def create_person(
     if created_person.relationship_type not in relationship_types:
         raise HTTPException(status_code=500, detail="Tipo de relacion invalida")
 
-    return PersonResponse(
-        id=created_person.id,
-        first_name=created_person.first_name,
-        last_name=created_person.last_name,
-        relationship_type=created_person.relationship_type,
-        email=created_person.email,
-        phone=created_person.phone,
-        birthday=created_person.birthday,
-        personality_tags=created_person.personality_tags,
-        notes=created_person.notes,
-    )
+    return await get_person(person_id=created_person.id, user=user)
 
 
 @router.get("", response_model=List[PersonResponse])
@@ -111,6 +103,7 @@ async def get_person(
         id=person.id,
         first_name=person.first_name,
         last_name=person.last_name,
+        photo=person.photo,
         relationship_type=person.relationship_type,
         email=person.email,
         phone=person.phone,
