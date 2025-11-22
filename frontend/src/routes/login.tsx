@@ -1,6 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect, useRouter, useRouterState  } from '@tanstack/react-router'
 import * as React from 'react'
-import { redirect, useRouter, useRouterState } from '@tanstack/react-router'
 import { z } from 'zod'
 import { useAuth } from '../auth'
 import { Input } from '@/components/ui/input'
@@ -47,7 +46,13 @@ function LoginComponent() {
       }
 
       if (isRegister) {
-        const result = await auth.register(username, password)
+        const email = data.get('email')?.toString()
+        if (!email) {
+          setError('Please fill in all fields')
+          return
+        }
+
+        const result = await auth.register(username, email, password)
         if (!result.success) {
           setError(result.error || 'Registration failed')
           return
@@ -161,6 +166,28 @@ function LoginComponent() {
                       placeholder="Enter your username"
                       type="text"
                       required
+                      className="transition-all duration-300"
+                    />
+                  </div>
+
+                  {/* Email field - only for register */}
+                  <div
+                    className={`space-y-2 transition-all duration-500 overflow-hidden ${
+                      isRegister ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'
+                    }`}
+                  >
+                    <label
+                      htmlFor="email-input"
+                      className="text-sm font-medium"
+                    >
+                      Email
+                    </label>
+                    <Input
+                      id="email-input"
+                      name="email"
+                      placeholder="Enter your email"
+                      type="email"
+                      required={isRegister}
                       className="transition-all duration-300"
                     />
                   </div>

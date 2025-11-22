@@ -1,11 +1,11 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { ArrowLeft, Upload } from 'lucide-react'
+import * as React from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ArrowLeft, Upload } from 'lucide-react'
 import { useAuth } from '@/auth'
-import * as React from 'react'
 
 export const Route = createFileRoute('/_auth/profile')({
   component: RouteComponent,

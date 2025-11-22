@@ -10,12 +10,12 @@ export const importApi = {
       method: 'POST',
       body: formData,
     })
-    
+
     if (!response.ok) {
       const error = await response.json()
       throw new Error(error.message || 'Failed to import WhatsApp chat')
     }
-    
+
     return response.json()
   },
 
@@ -28,12 +28,12 @@ export const importApi = {
       method: 'POST',
       body: formData,
     })
-    
+
     if (!response.ok) {
       const error = await response.json()
       throw new Error(error.message || 'Failed to import Telegram chat')
     }
-    
+
     return response.json()
   },
 }

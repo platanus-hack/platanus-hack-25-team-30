@@ -1,26 +1,27 @@
-import type { CreateContactPayload, Contact } from '@/lib/types/contact-types'
+import type { Contact, CreateContactPayload } from '@/lib/types/contact-types'
 import { getContact } from '@/lib/mappers/contact-mappers'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 export const contactsApi = {
   async create(payload: CreateContactPayload): Promise<Contact> {
-    const response = await fetch(`${API_BASE_URL}/contacts`, {
+    const response = await fetch(`${API_BASE_URL}/persons`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'user-token': 'test' },
       body: JSON.stringify(payload),
     })
-    
     if (!response.ok) throw new Error('Failed to create contact')
-    
+
     const data = await response.json()
     return getContact(data)
   },
 
-  async getAll(): Promise<Contact[]> {
-    const response = await fetch(`${API_BASE_URL}/contacts`)
+  async getAll(): Promise<Array<Contact>> {
+    const response = await fetch(`${API_BASE_URL}/persons/`, {
+      headers: { 'user-token': 'test' },
+    })
     if (!response.ok) throw new Error('Failed to fetch contacts')
-    
+
     const data = await response.json()
     return data.map(getContact)
   },
@@ -28,20 +29,23 @@ export const contactsApi = {
   async getById(id: string): Promise<Contact> {
     const response = await fetch(`${API_BASE_URL}/contacts/${id}`)
     if (!response.ok) throw new Error('Failed to fetch contact')
-    
+
     const data = await response.json()
     return getContact(data)
   },
 
-  async update(id: string, payload: Partial<CreateContactPayload>): Promise<Contact> {
+  async update(
+    id: string,
+    payload: Partial<CreateContactPayload>,
+  ): Promise<Contact> {
     const response = await fetch(`${API_BASE_URL}/contacts/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     })
-    
+
     if (!response.ok) throw new Error('Failed to update contact')
-    
+
     const data = await response.json()
     return getContact(data)
   },
@@ -50,7 +54,7 @@ export const contactsApi = {
     const response = await fetch(`${API_BASE_URL}/contacts/${id}`, {
       method: 'DELETE',
     })
-    
+
     if (!response.ok) throw new Error('Failed to delete contact')
   },
 }

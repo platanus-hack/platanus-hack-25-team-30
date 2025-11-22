@@ -1,8 +1,8 @@
-import type { Contact } from '@/lib/types/contact-types'
 import { ContactCard } from './ContactCard'
+import type { Contact } from '@/lib/types/contact-types'
 
 interface ContactsGridProps {
-  contacts: Contact[]
+  contacts: Array<Contact>
 }
 
 export function ContactsGrid({ contacts }: ContactsGridProps) {

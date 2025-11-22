@@ -1,10 +1,10 @@
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Search, Filter, Plus } from 'lucide-react'
-import { searchContactStore } from '@/lib/stores/contact-store'
+import { Filter, Plus, Search } from 'lucide-react'
 import { useStore } from '@tanstack/react-store'
 import { useState } from 'react'
 import { ContactForm } from './ContactForm'
+import { searchContactStore } from '@/lib/stores/contact-store'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 export function ContactsHeader() {
   const searchValue = useStore(searchContactStore, (state) => state.searchValue)
@@ -31,7 +31,10 @@ export function ContactsHeader() {
               placeholder="Search contacts..."
               value={searchValue}
               onChange={(e) =>
-                searchContactStore.setState((state) => ({ ...state, searchValue: e.target.value }))
+                searchContactStore.setState((state) => ({
+                  ...state,
+                  searchValue: e.target.value,
+                }))
               }
               className="pl-10 bg-white border-gray-200"
             />
@@ -46,11 +49,7 @@ export function ContactsHeader() {
         </div>
       </div>
 
-      {isFormOpen && (
-        <ContactForm
-          onClose={() => setIsFormOpen(false)}
-        />
-      )}
+      {isFormOpen && <ContactForm onClose={() => setIsFormOpen(false)} />}
     </>
   )
 }

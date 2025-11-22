@@ -2,14 +2,14 @@ import { Link, useNavigate } from '@tanstack/react-router'
 
 import { useState } from 'react'
 import {
-  Users,
-  LayoutDashboard,
-  Menu,
   BarChart3,
-  Upload,
-  X,
+  LayoutDashboard,
   LogOut,
+  Menu,
+  Upload,
   User as UserIcon,
+  Users,
+  X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {

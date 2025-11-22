@@ -1,4 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router'
+import * as React from 'react'
+import {
+  AlertCircle,
+  ArrowDownRight,
+  ArrowUpRight,
+  Calendar,
+  Clock,
+  Eye,
+  Flame,
+  MoreVertical,
+  Pencil,
+  Trash2,
+  TrendingUp,
+  Users,
+} from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,21 +29,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 
-import * as React from 'react'
-import {
-  Users,
-  TrendingUp,
-  Calendar,
-  AlertCircle,
-  Clock,
-  Flame,
-  ArrowUpRight,
-  ArrowDownRight,
-  Eye,
-  Pencil,
-  Trash2,
-  MoreVertical,
-} from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/auth'
 import { CardStack } from '@/components/CardStack'

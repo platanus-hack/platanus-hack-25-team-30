@@ -1,10 +1,10 @@
+import { Calendar, MoreVertical, PartyPopper } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
+import type { Contact } from '../../lib/types/contact-types'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { MessageSquare, MoreVertical, Calendar } from 'lucide-react'
-import { Link } from '@tanstack/react-router'
-import type { Contact } from '../../lib/types/contact-types'
 
 interface ContactCardProps {
   contact: Contact
@@ -24,6 +24,15 @@ export function ContactCard({ contact }: ContactCardProps) {
   }
 
   const fullName = `${contact.firstName} ${contact.lastName}`
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    const options: Intl.DateTimeFormatOptions = {
+      day: 'numeric',
+      month: 'long',
+    }
+    return date.toLocaleDateString('es-ES', options)
+  }
 
   return (
     <Link to="/contacts/$contactId" params={{ contactId: contact.id }}>
@@ -51,7 +60,7 @@ export function ContactCard({ contact }: ContactCardProps) {
           {/* Score */}
           <div className="mb-4">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-gray-500">Score</span>
+              <span className="text-xs text-gray-500">Puntaje</span>
               {contact.score > 0 && (
                 <span
                   className={`text-sm font-medium rounded-md px-2.5 py-1 border ${getScoreColor(contact.score)}`}
@@ -67,12 +76,14 @@ export function ContactCard({ contact }: ContactCardProps) {
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Calendar className="h-4 w-4 text-gray-400" />
               <span className="text-xs">
-                Last conversation: {contact.lastConversation}
+                Ultima conversación: {contact.lastConversation}
               </span>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
-              <MessageSquare className="h-4 w-4 text-gray-400" />
-              <span className="text-xs">{contact.totalInteractions} chats</span>
+              <PartyPopper className="h-4 w-4 text-gray-400" />
+              <span className="text-xs">
+                Cumpleaños: {formatDate(contact.birthday)}
+              </span>
             </div>
           </div>
 

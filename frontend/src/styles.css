@@ -45,7 +45,7 @@ code {
   --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.625rem;
 
-    /* Custom App Colors */
+  /* Custom App Colors */
   --app-primary: rgb(239, 90, 111);
   /* Coral Red */
   --app-secondary: rgb(255, 241, 219);

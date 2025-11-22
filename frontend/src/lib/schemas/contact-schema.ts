@@ -1,21 +1,21 @@
 import { z } from 'zod'
 
 export const CreateContactSchema = z.object({
-  firstName: z.string().min(1, { message: "First name is required" }),
-  lastName: z.string().min(1, { message: "Last name is required" }),
-  relationshipType: z.enum([
-    "Familia",
-    "Amigo Cercano",
-    "Amigo",
-    "Colega",
-    "Romantico",
-    "Conocido",
-  ]),
-  email: z.email({ message: "Invalid email address" }),
-  phone: z.string(), 
-  birthday: z.iso.date(), 
-  personalityTags: z.array(z.string()),
-  notes: z.string(),
+  avatar: z.string().optional(),
+  firstName: z.string().min(1, { message: 'El nombre es requerido' }),
+  lastName: z.string().min(1, { message: 'El apellido es requerido' }),
+  relationshipType: z.enum(
+    ['Familia', 'Amigo Cercano', 'Amigo', 'Colega', 'Romantico', 'Conocido'],
+    { message: 'Selecciona un tipo de relación' },
+  ),
+  email: z.email({ message: 'Email inválido' }).optional(),
+  phone: z.string().optional(),
+  birthday: z.iso.date({ message: 'Fecha de cumpleaños inválida' }),
+  personalityTags: z
+    .array(z.string())
+    .max(5, { message: 'Máximo 5 etiquetas de personalidad' })
+    .min(1, { message: 'Al menos una etiqueta de personalidad es requerida' }),
+  notes: z.string().optional(),
 })
 
 export type CreateContactData = z.infer<typeof CreateContactSchema>
