@@ -3,91 +3,51 @@ import { Store } from '@tanstack/react-store'
 const API_BASE_URL = 'http://localhost:8000'
 
 export interface User {
-  id?: string
-  name: string
-  email?: string
-  avatar?: string
+  username: string
 }
 
 interface AuthState {
-  user: User | null
-  token: string | null
-  isAuthenticated: boolean
-}
-
-const USER_KEY = 'tanstack.auth.user'
-const TOKEN_KEY = 'tanstack.auth.token'
-
-function getStoredUser(): User | null {
-  const userStr = localStorage.getItem(USER_KEY)
-  return userStr ? JSON.parse(userStr) : null
-}
-
-function getStoredToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY)
-}
-
-function setStoredUser(user: User | null) {
-  if (user) {
-    localStorage.setItem(USER_KEY, JSON.stringify(user))
-  } else {
-    localStorage.removeItem(USER_KEY)
-  }
-}
-
-function setStoredToken(token: string | null) {
-  if (token) {
-    localStorage.setItem(TOKEN_KEY, token)
-  } else {
-    localStorage.removeItem(TOKEN_KEY)
-  }
+  user: User
+  token: string
 }
 
 // Initialize store with stored values
-export const authStore = new Store<AuthState>({
-  user: getStoredUser(),
-  token: getStoredToken(),
-  isAuthenticated: !!getStoredUser(),
-})
+export const authStore = new Store<AuthState | null>(null)
 
 // Auth actions
 export const authActions = {
-  async login(name: string, password: string): Promise<{ success: boolean; error?: string }> {
+  async login(
+    username: string,
+    password: string,
+  ): Promise<{ success: boolean; error?: string }> {
     try {
       const response = await fetch(`${API_BASE_URL}/users/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username: name, password }),
+        body: JSON.stringify({ username: username, password }),
       })
 
       const data = await response.json()
+      console.log('data', data)
 
       if (!response.ok) {
         return { success: false, error: data.message || 'Login failed' }
       }
 
       const userData: User = {
-        id: data.id?.toString() || data.user?.id?.toString(),
-        name: data.username || data.user?.username || name,
-        email: data.email || data.user?.email,
-        avatar: data.avatar || data.user?.avatar,
+        username: username,
       }
 
-      const token = data.user_token || data.token || data.access_token
+      const token = username
 
       // Update store
       authStore.setState((state) => ({
         ...state,
         user: userData,
-        token,
-        isAuthenticated: true,
+        token: token,
       }))
-
-      // Persist to localStorage
-      setStoredUser(userData)
-      setStoredToken(token)
 
       return { success: true }
     } catch (error) {
@@ -96,14 +56,18 @@ export const authActions = {
     }
   },
 
-  async register(name: string, password: string): Promise<{ success: boolean; error?: string }> {
+  async register(
+    username: string,
+    email: string,
+    password: string,
+  ): Promise<{ success: boolean; error?: string }> {
     try {
       const response = await fetch(`${API_BASE_URL}/users/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username: name, password }),
+        body: JSON.stringify({ username: username, password }),
       })
 
       const data = await response.json()
@@ -113,25 +77,17 @@ export const authActions = {
       }
 
       const userData: User = {
-        id: data.id?.toString() || data.user?.id?.toString(),
-        name: data.username || data.user?.username || name,
-        email: data.email || data.user?.email,
-        avatar: data.avatar || data.user?.avatar,
+        username: username,
       }
 
-      const token = data.user_token || data.token || data.access_token
+      const token = username
 
       // Update store
       authStore.setState((state) => ({
         ...state,
         user: userData,
-        token,
-        isAuthenticated: true,
+        token: token,
       }))
-
-      // Persist to localStorage
-      setStoredUser(userData)
-      setStoredToken(token)
 
       return { success: true }
     } catch (error) {
@@ -140,29 +96,8 @@ export const authActions = {
     }
   },
 
-  async logout(): Promise<void> {
+  logout(): void {
     // Clear store
-    authStore.setState((state) => ({
-      ...state,
-      user: null,
-      token: null,
-      isAuthenticated: false,
-    }))
-
-    // Clear localStorage
-    setStoredUser(null)
-    setStoredToken(null)
-  },
-
-  updateUser(user: Partial<User>): void {
-    const currentUser = authStore.state.user
-    if (currentUser) {
-      const updatedUser = { ...currentUser, ...user }
-      authStore.setState((state) => ({
-        ...state,
-        user: updatedUser,
-      }))
-      setStoredUser(updatedUser)
-    }
+    authStore.setState(() => null)
   },
 }

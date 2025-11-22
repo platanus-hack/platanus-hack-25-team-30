@@ -1,4 +1,5 @@
 import { Link, useNavigate } from '@tanstack/react-router'
+import { useStore } from '@tanstack/react-store'
 
 import { useState } from 'react'
 import {
@@ -17,13 +18,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { authActions, authStore } from '@/lib/stores/auth-store'
 import { Card } from '@/components/ui/card'
-import { useAuth } from '@/auth'
 
 export default function Header() {
+  const state = useStore(authStore)
+  if (!state) return null
+  const { user, token } = state
+
   const [isOpen, setIsOpen] = useState(false)
   const [isUserOpen, setIsUserOpen] = useState(false)
-  const auth = useAuth()
   const navigate = useNavigate()
 
   return (
@@ -43,7 +47,7 @@ export default function Header() {
         </div>
 
         {/* User Options */}
-        {auth.user && (
+        {
           <Popover open={isUserOpen} onOpenChange={setIsUserOpen}>
             <PopoverTrigger asChild>
               <Card className="p-3 cursor-pointer hover:shadow-md transition-shadow flex items-center gap-3 bg-gradient-to-r from-red-50 to-orange-50 border-red-200">
@@ -52,7 +56,7 @@ export default function Header() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">
-                    {auth.user.name}
+                    {user.username}
                   </p>
                 </div>
               </Card>
@@ -73,8 +77,8 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   className="justify-start gap-2 text-sm font-normal text-red-600 hover:text-red-700 hover:bg-red-50"
-                  onClick={async () => {
-                    await auth.logout()
+                  onClick={() => {
+                    authActions.logout()
                     setIsUserOpen(false)
                     navigate({ to: '/login' })
                   }}
@@ -85,7 +89,7 @@ export default function Header() {
               </div>
             </PopoverContent>
           </Popover>
-        )}
+        }
       </header>
 
       {isOpen && (

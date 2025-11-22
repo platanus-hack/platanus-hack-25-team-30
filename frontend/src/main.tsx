@@ -6,7 +6,6 @@ import * as TanStackQueryProvider from './integrations/tanstack-query/root-provi
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
-import { AuthProvider, useAuth } from './auth'
 
 import './styles.css'
 import reportWebVitals from './reportWebVitals.ts'
@@ -16,10 +15,7 @@ import reportWebVitals from './reportWebVitals.ts'
 const TanStackQueryProviderContext = TanStackQueryProvider.getContext()
 const router = createRouter({
   routeTree,
-  context: {
-    ...TanStackQueryProviderContext,
-    auth: undefined!,
-  },
+  context: TanStackQueryProviderContext,
   defaultPreload: 'intent',
   scrollRestoration: true,
   defaultStructuralSharing: true,
@@ -34,11 +30,10 @@ declare module '@tanstack/react-router' {
 }
 
 function AuthenticatedApp() {
-  const auth = useAuth()
   return (
     <RouterProvider
       router={router}
-      context={{ ...TanStackQueryProviderContext, auth }}
+      context={TanStackQueryProviderContext}
     />
   )
 }
@@ -50,9 +45,7 @@ if (rootElement && !rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <TanStackQueryProvider.Provider {...TanStackQueryProviderContext}>
-        <AuthProvider>
-          <AuthenticatedApp />
-        </AuthProvider>
+        <AuthenticatedApp />
       </TanStackQueryProvider.Provider>
     </StrictMode>,
   )

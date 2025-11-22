@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import * as React from 'react'
+import { useStore } from '@tanstack/react-store'
+import { useMemo, useState } from 'react'
 import {
   AlertCircle,
   ArrowDownRight,
@@ -30,17 +31,20 @@ import {
 } from '@/components/ui/popover'
 
 import { Badge } from '@/components/ui/badge'
-import { useAuth } from '@/auth'
 import { CardStack } from '@/components/CardStack'
 import { contactsData } from '@/data/contact-data'
+import { authStore } from '@/lib/stores/auth-store'
 
 export const Route = createFileRoute('/_auth/dashboard')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const [sortBy, setSortBy] = React.useState('')
-  const auth = useAuth()
+  const state = useStore(authStore)
+  if (!state) return null
+  const { user, token } = state
+
+  const [sortBy, setSortBy] = useState('')
 
   const mockStats = {
     totalRelationships: 24,
@@ -63,7 +67,7 @@ function RouteComponent() {
     interactions: c.totalInteractions,
     healthScore: c.score,
     lastContact: c.lastContact,
-    source: c.tags?.[2] || 'WhatsApp', // fallback
+    source: c.tags[2] || 'WhatsApp', // fallback
     streak: 0, // Not available in data
     responseTime: '< 1h', // Not available in data
     communicationBalance: 'Balanced', // Not available in data
@@ -119,7 +123,7 @@ function RouteComponent() {
     },
   ]
 
-  const sortedUsers = React.useMemo(() => {
+  const sortedUsers = useMemo(() => {
     if (!sortBy) return mockUsers
     return [...mockUsers].sort((a, b) => {
       const key = sortBy as keyof (typeof mockUsers)[0]

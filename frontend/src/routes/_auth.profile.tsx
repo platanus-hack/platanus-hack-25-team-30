@@ -1,21 +1,25 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useStore } from '@tanstack/react-store'
 import { ArrowLeft, Upload } from 'lucide-react'
 import * as React from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useAuth } from '@/auth'
+import { authStore } from '@/lib/stores/auth-store'
 
 export const Route = createFileRoute('/_auth/profile')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const auth = useAuth()
+  const state = useStore(authStore)
+  if (!state) return null
+  const { user, token } = state
+
   const navigate = useNavigate()
   const [imagePreview, setImagePreview] = React.useState<string>('')
-  const [name, setName] = React.useState(auth.user || '')
+  const [name, setName] = React.useState(user.username)
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
   const [image, setImage] = React.useState('')

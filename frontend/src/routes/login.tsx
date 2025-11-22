@@ -1,7 +1,12 @@
-import { createFileRoute, redirect, useRouter, useRouterState  } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  redirect,
+  useRouter,
+  useRouterState,
+} from '@tanstack/react-router'
 import * as React from 'react'
 import { z } from 'zod'
-import { useAuth } from '../auth'
+import { authActions, authStore } from '@/lib/stores/auth-store'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -12,8 +17,8 @@ export const Route = createFileRoute('/login')({
   validateSearch: z.object({
     redirect: z.string().optional().catch(''),
   }),
-  beforeLoad: ({ context, search }) => {
-    if (context.auth.isAuthenticated) {
+  beforeLoad: ({ search }) => {
+    if (authStore.state) {
       throw redirect({ to: search.redirect || fallback })
     }
   },
@@ -21,7 +26,6 @@ export const Route = createFileRoute('/login')({
 })
 
 function LoginComponent() {
-  const auth = useAuth()
   const router = useRouter()
   const isLoading = useRouterState({ select: (s) => s.isLoading })
   const navigate = Route.useNavigate()
@@ -52,13 +56,13 @@ function LoginComponent() {
           return
         }
 
-        const result = await auth.register(username, email, password)
+        const result = await authActions.register(username, email, password)
         if (!result.success) {
           setError(result.error || 'Registration failed')
           return
         }
       } else {
-        const result = await auth.login(username, password)
+        const result = await authActions.login(username, password)
         if (!result.success) {
           setError(result.error || 'Login failed')
           return
