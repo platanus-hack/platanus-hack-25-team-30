@@ -17,7 +17,6 @@ export function useContacts() {
   const createMutation = useMutation({
     mutationFn: (data: CreateContactData) => {
       const payload = createContactPayload(data)
-      return
       return contactsApi.create(payload)
     },
     onSuccess: () => {

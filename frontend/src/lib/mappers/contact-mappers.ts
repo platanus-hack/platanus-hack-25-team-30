@@ -8,11 +8,11 @@ export function createContactPayload(
     first_name: data.firstName,
     last_name: data.lastName,
     relationship_type: data.relationshipType,
-    email: data.email,
-    phone: data.phone,
-    birthday: data.birthday,
+    email: data.email || '',
+    phone: data.phone || '',
+    birthday: data.birthday || '',
     personality_tags: data.personalityTags,
-    notes: data.notes,
+    notes: data.notes || '',
   }
 }
 
