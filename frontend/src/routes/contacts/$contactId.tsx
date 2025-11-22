@@ -24,7 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { ContactForm } from '@/components/contacts/ContactForm'
 
-export const Route = createFileRoute('/_auth/contacts/$contactId')({
+export const Route = createFileRoute('/contacts/$contactId')({
   component: ContactShowComponent,
 })
 

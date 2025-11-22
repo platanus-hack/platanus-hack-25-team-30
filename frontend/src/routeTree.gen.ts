@@ -9,145 +9,120 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as ImportRouteImport } from './routes/import'
-import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthProfileRouteImport } from './routes/_auth.profile'
-import { Route as AuthDashboardRouteImport } from './routes/_auth.dashboard'
-import { Route as AuthContactsIndexRouteImport } from './routes/_auth.contacts.index'
-import { Route as AuthContactsContactIdRouteImport } from './routes/_auth.contacts.$contactId'
+import { Route as ProfileIndexRouteImport } from './routes/profile/index'
+import { Route as LoginIndexRouteImport } from './routes/login/index'
+import { Route as ImportIndexRouteImport } from './routes/import/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as ContactsIndexRouteImport } from './routes/contacts/index'
+import { Route as ContactsContactIdRouteImport } from './routes/contacts/$contactId'
 
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ImportRoute = ImportRouteImport.update({
-  id: '/import',
-  path: '/import',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/_auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthProfileRoute = AuthProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AuthRoute,
+const ProfileIndexRoute = ProfileIndexRouteImport.update({
+  id: '/profile/',
+  path: '/profile/',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AuthDashboardRoute = AuthDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthRoute,
+const LoginIndexRoute = LoginIndexRouteImport.update({
+  id: '/login/',
+  path: '/login/',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AuthContactsIndexRoute = AuthContactsIndexRouteImport.update({
+const ImportIndexRoute = ImportIndexRouteImport.update({
+  id: '/import/',
+  path: '/import/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactsIndexRoute = ContactsIndexRouteImport.update({
   id: '/contacts/',
   path: '/contacts/',
-  getParentRoute: () => AuthRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AuthContactsContactIdRoute = AuthContactsContactIdRouteImport.update({
+const ContactsContactIdRoute = ContactsContactIdRouteImport.update({
   id: '/contacts/$contactId',
   path: '/contacts/$contactId',
-  getParentRoute: () => AuthRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/import': typeof ImportRoute
-  '/login': typeof LoginRoute
-  '/dashboard': typeof AuthDashboardRoute
-  '/profile': typeof AuthProfileRoute
-  '/contacts/$contactId': typeof AuthContactsContactIdRoute
-  '/contacts': typeof AuthContactsIndexRoute
+  '/contacts/$contactId': typeof ContactsContactIdRoute
+  '/contacts': typeof ContactsIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/import': typeof ImportIndexRoute
+  '/login': typeof LoginIndexRoute
+  '/profile': typeof ProfileIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/import': typeof ImportRoute
-  '/login': typeof LoginRoute
-  '/dashboard': typeof AuthDashboardRoute
-  '/profile': typeof AuthProfileRoute
-  '/contacts/$contactId': typeof AuthContactsContactIdRoute
-  '/contacts': typeof AuthContactsIndexRoute
+  '/contacts/$contactId': typeof ContactsContactIdRoute
+  '/contacts': typeof ContactsIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/import': typeof ImportIndexRoute
+  '/login': typeof LoginIndexRoute
+  '/profile': typeof ProfileIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_auth': typeof AuthRouteWithChildren
-  '/import': typeof ImportRoute
-  '/login': typeof LoginRoute
-  '/_auth/dashboard': typeof AuthDashboardRoute
-  '/_auth/profile': typeof AuthProfileRoute
-  '/_auth/contacts/$contactId': typeof AuthContactsContactIdRoute
-  '/_auth/contacts/': typeof AuthContactsIndexRoute
+  '/contacts/$contactId': typeof ContactsContactIdRoute
+  '/contacts/': typeof ContactsIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/import/': typeof ImportIndexRoute
+  '/login/': typeof LoginIndexRoute
+  '/profile/': typeof ProfileIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/import'
-    | '/login'
-    | '/dashboard'
-    | '/profile'
     | '/contacts/$contactId'
     | '/contacts'
+    | '/dashboard'
+    | '/import'
+    | '/login'
+    | '/profile'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/import'
-    | '/login'
-    | '/dashboard'
-    | '/profile'
     | '/contacts/$contactId'
     | '/contacts'
+    | '/dashboard'
+    | '/import'
+    | '/login'
+    | '/profile'
   id:
     | '__root__'
     | '/'
-    | '/_auth'
-    | '/import'
-    | '/login'
-    | '/_auth/dashboard'
-    | '/_auth/profile'
-    | '/_auth/contacts/$contactId'
-    | '/_auth/contacts/'
+    | '/contacts/$contactId'
+    | '/contacts/'
+    | '/dashboard/'
+    | '/import/'
+    | '/login/'
+    | '/profile/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthRoute: typeof AuthRouteWithChildren
-  ImportRoute: typeof ImportRoute
-  LoginRoute: typeof LoginRoute
+  ContactsContactIdRoute: typeof ContactsContactIdRoute
+  ContactsIndexRoute: typeof ContactsIndexRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  ImportIndexRoute: typeof ImportIndexRoute
+  LoginIndexRoute: typeof LoginIndexRoute
+  ProfileIndexRoute: typeof ProfileIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/import': {
-      id: '/import'
-      path: '/import'
-      fullPath: '/import'
-      preLoaderRoute: typeof ImportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_auth': {
-      id: '/_auth'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -155,58 +130,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/profile': {
-      id: '/_auth/profile'
+    '/profile/': {
+      id: '/profile/'
       path: '/profile'
       fullPath: '/profile'
-      preLoaderRoute: typeof AuthProfileRouteImport
-      parentRoute: typeof AuthRoute
+      preLoaderRoute: typeof ProfileIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_auth/dashboard': {
-      id: '/_auth/dashboard'
+    '/login/': {
+      id: '/login/'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/import/': {
+      id: '/import/'
+      path: '/import'
+      fullPath: '/import'
+      preLoaderRoute: typeof ImportIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthDashboardRouteImport
-      parentRoute: typeof AuthRoute
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_auth/contacts/': {
-      id: '/_auth/contacts/'
+    '/contacts/': {
+      id: '/contacts/'
       path: '/contacts'
       fullPath: '/contacts'
-      preLoaderRoute: typeof AuthContactsIndexRouteImport
-      parentRoute: typeof AuthRoute
+      preLoaderRoute: typeof ContactsIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_auth/contacts/$contactId': {
-      id: '/_auth/contacts/$contactId'
+    '/contacts/$contactId': {
+      id: '/contacts/$contactId'
       path: '/contacts/$contactId'
       fullPath: '/contacts/$contactId'
-      preLoaderRoute: typeof AuthContactsContactIdRouteImport
-      parentRoute: typeof AuthRoute
+      preLoaderRoute: typeof ContactsContactIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface AuthRouteChildren {
-  AuthDashboardRoute: typeof AuthDashboardRoute
-  AuthProfileRoute: typeof AuthProfileRoute
-  AuthContactsContactIdRoute: typeof AuthContactsContactIdRoute
-  AuthContactsIndexRoute: typeof AuthContactsIndexRoute
-}
-
-const AuthRouteChildren: AuthRouteChildren = {
-  AuthDashboardRoute: AuthDashboardRoute,
-  AuthProfileRoute: AuthProfileRoute,
-  AuthContactsContactIdRoute: AuthContactsContactIdRoute,
-  AuthContactsIndexRoute: AuthContactsIndexRoute,
-}
-
-const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthRoute: AuthRouteWithChildren,
-  ImportRoute: ImportRoute,
-  LoginRoute: LoginRoute,
+  ContactsContactIdRoute: ContactsContactIdRoute,
+  ContactsIndexRoute: ContactsIndexRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+  ImportIndexRoute: ImportIndexRoute,
+  LoginIndexRoute: LoginIndexRoute,
+  ProfileIndexRoute: ProfileIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -35,7 +35,7 @@ import { CardStack } from '@/components/CardStack'
 import { contactsData } from '@/data/contact-data'
 import { authStore } from '@/lib/stores/auth-store'
 
-export const Route = createFileRoute('/_auth/dashboard')({
+export const Route = createFileRoute('/dashboard/')({
   component: RouteComponent,
 })
 

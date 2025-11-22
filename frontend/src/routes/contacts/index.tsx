@@ -6,7 +6,7 @@ import { ContactsGrid } from '@/components/contacts/ContactsGrid'
 import { searchContactStore } from '@/lib/stores/contact-store'
 import { useContacts } from '@/hooks/contact-hook'
 
-export const Route = createFileRoute('/_auth/contacts/')({
+export const Route = createFileRoute('/contacts/')({
   component: RouteComponent,
 })
 

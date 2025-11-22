@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { authStore } from '@/lib/stores/auth-store'
 
-export const Route = createFileRoute('/_auth/profile')({
+export const Route = createFileRoute('/profile/')({
   component: RouteComponent,
 })
 
