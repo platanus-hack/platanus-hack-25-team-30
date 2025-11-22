@@ -1,3 +1,4 @@
+import asyncio
 from datetime import date
 from typing import Annotated, List, Literal
 
@@ -88,7 +89,9 @@ async def get_persons(
     # Fetch all persons for this user
     persons = await PersonModel.filter(user=user)
 
-    return [get_person(person_id=person.id, user=user) for person in persons]
+    return await asyncio.gather(
+        *[get_person(person_id=person.id, user=user) for person in persons]
+    )
 
 
 @router.get("/{person_id}", response_model=PersonResponse)

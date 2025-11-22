@@ -1,8 +1,11 @@
 import logging
-from typing import List
+from typing import Annotated, List
 
-from fastapi import APIRouter, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, UploadFile
 
+from app.db import Record, User
+from app.dependencies import get_user_token_header
+from app.routers.persons.chat.utils import parsed_chat_to_record
 from app.utils.chat_parsers.specific.whatsapp_message_parser import (
     WhatsAppMessagesParser,
 )
@@ -13,30 +16,38 @@ logger = logging.getLogger(__name__)
 
 
 @router.post("/participants")
-async def get_participants_from_file(file: UploadFile):
-    if not file.filename:
-        raise HTTPException(status_code=400, detail="No file uploaded.")
-
-    if file.content_type != "text/plain":
-        raise HTTPException(
-            status_code=400, detail="Invalid content type. Only text/plain is accepted."
-        )
-    if not file.filename.endswith(".txt"):
-        raise HTTPException(
-            status_code=400, detail="Invalid file type. Only .txt files are accepted."
-        )
+async def get_participants_from_file(file: UploadFile) -> List[str]:
+    logger.info("Received request to get participants from WhatsApp chat file")
+    _check_file(file)
 
     content = await file.read()
     lines: List[str] = content.decode("utf-8").splitlines()
     whatsapp_parser = WhatsAppMessagesParser(raw_messages=lines)
-    messages = whatsapp_parser.parse()
+    parsed_chat = whatsapp_parser.parse()
 
-    return messages
+    return parsed_chat.participants
 
 
 @router.post("/upload")
-async def upload_whatsapp_chat(file: UploadFile, sent_from: str):
+async def upload_whatsapp_chat(
+    file: UploadFile,
+    user: Annotated[User, Depends(get_user_token_header)],
+):
     logger.info("Received WhatsApp chat upload")
+
+    _check_file(file)
+
+    content = await file.read()
+    lines: List[str] = content.decode("utf-8").splitlines()
+    whatsapp_parser = WhatsAppMessagesParser(raw_messages=lines)
+    parsed_chat = whatsapp_parser.parse()
+
+    records = parsed_chat_to_record(parsed_chat=parsed_chat, user=user)
+
+    Record.bulk_create(records)
+
+
+def _check_file(file: UploadFile):
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file uploaded.")
 
@@ -48,10 +59,3 @@ async def upload_whatsapp_chat(file: UploadFile, sent_from: str):
         raise HTTPException(
             status_code=400, detail="Invalid file type. Only .txt files are accepted."
         )
-
-    content = await file.read()
-    lines: List[str] = content.decode("utf-8").splitlines()
-    whatsapp_parser = WhatsAppMessagesParser(raw_messages=lines)
-    messages = whatsapp_parser.parse()
-
-    return messages
