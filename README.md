@@ -1,9 +1,8 @@
 # team-30 Platanus Hack Project
 
-**Current project logo:** project-logo.png
+**DeepBonds**
 
-<img src="./project-logo.png" alt="Project Logo" width="200" />
-
+<img src="https://cdn.discordapp.com/attachments/1441637720899190879/1441893260976193729/Gemini_Generated_Image_lch5j9lch5j9lch5_1.png?ex=6923733e&is=692221be&hm=ec173c3521588707f2bfe67888c3d1723892ba7f7b3c87d31e4e0b7fafb42d49&" alt="Project Logo" width="200" />
 Submission Deadline: 23rd Nov, 9:00 AM, Chile time.
 
 Track: 🦾 human enhancement

@@ -7,7 +7,6 @@ class User(Model):
     username = fields.CharField(max_length=255)
     password = fields.CharField(max_length=255)
     created_at = fields.DatetimeField(auto_now_add=True)
-
     persons: fields.ReverseRelation["Person"]
 
     class Meta:  # type: ignore[reportIncompatibleVariableOverride]
@@ -19,11 +18,12 @@ class Person(Model):
     user: fields.ForeignKeyRelation[User] = fields.ForeignKeyField(
         "models.User", related_name="persons"
     )
+    photo = fields.BinaryField(null=True)
     first_name = fields.CharField(max_length=255)
     last_name = fields.CharField(max_length=255)
     relationship_type = fields.CharField(max_length=50)
-    email = fields.CharField(max_length=255)
-    phone = fields.CharField(max_length=50)
+    email = fields.CharField(max_length=255, null=True)
+    phone = fields.CharField(max_length=50, null=True)
     birthday = fields.DateField()
     personality_tags = fields.JSONField()
     notes = fields.TextField()
@@ -42,6 +42,7 @@ class Record(Model):
     )
     source = fields.CharField(max_length=255)
     time = fields.DatetimeField()
+    message_text = fields.TextField()
     created_at = fields.DatetimeField(auto_now_add=True)
 
     class Meta:  # type: ignore[reportIncompatibleVariableOverride]

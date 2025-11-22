@@ -1,4 +1,9 @@
 import * as React from 'react'
+import { useStore } from '@tanstack/react-store'
+import { authStore, authActions } from './lib/stores/auth-store'
+import type { User } from './lib/stores/auth-store'
+
+export type { User }
 
 export interface AuthContext {
   isAuthenticated: boolean
@@ -12,7 +17,8 @@ export interface AuthContext {
     password: string,
   ) => Promise<{ success: boolean; error?: string }>
   logout: () => Promise<void>
-  user: string | null
+  user: User | null
+  updateUser: (user: Partial<User>) => void
 }
 
 const AuthContext = React.createContext<AuthContext | null>(null)
