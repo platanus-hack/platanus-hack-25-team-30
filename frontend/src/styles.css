@@ -44,6 +44,17 @@ code {
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.625rem;
+
+    /* Custom App Colors */
+  --app-primary: rgb(239, 90, 111);
+  /* Coral Red */
+  --app-secondary: rgb(255, 241, 219);
+  /* Warm Cream */
+  --app-base: rgb(212, 189, 172);
+  /* Soft Taupe */
+  --app-neutral: rgb(83, 100, 147);
+  /* Deep Blue */
+
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.141 0.005 285.823);
   --sidebar-primary: oklch(0.21 0.006 285.885);
