@@ -9,7 +9,7 @@ from app.db import Person as PersonModel
 from app.db import User
 from app.dependencies import get_user_token_header
 
-from .chat.chat import router as chat_router
+from .records.get import router as records_router
 
 relationship_types = (
     "Familia",
@@ -44,8 +44,8 @@ class PersonResponse(Person):
     id: int
 
 
-router = APIRouter(prefix="/persons", tags=["persons"])
-router.include_router(chat_router)
+router = APIRouter(prefix="/contacts", tags=["contacts"])
+router.include_router(records_router)
 
 
 @router.post("", response_model=PersonResponse)
@@ -82,7 +82,7 @@ async def create_person(
     )
 
 
-@router.get("/", response_model=List[PersonResponse])
+@router.get("", response_model=List[PersonResponse])
 async def get_persons(
     user: Annotated[User, Depends(get_user_token_header)],
 ):

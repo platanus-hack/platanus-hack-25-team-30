@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile
 
 from app.db import Record, User
 from app.dependencies import get_user_token_header
-from app.routers.persons.chat.utils import (
+from app.routers.contacts.records.utils import (
     filter_already_uploaded_records,
     parsed_chat_to_record,
 )
@@ -33,6 +33,7 @@ async def get_participants_from_file(file: UploadFile) -> List[str]:
 
 @router.post("/upload")
 async def upload_whatsapp_chat(
+    person_id: int,
     file: UploadFile,
     user: Annotated[User, Depends(get_user_token_header)],
 ):
@@ -45,7 +46,7 @@ async def upload_whatsapp_chat(
     whatsapp_parser = WhatsAppMessagesParser(raw_messages=lines)
     parsed_chat = whatsapp_parser.parse()
 
-    records = parsed_chat_to_record(parsed_chat=parsed_chat, user=user)
+    records = parsed_chat_to_record(parsed_chat=parsed_chat, person_id=person_id)
 
     new_records = await filter_already_uploaded_records(records=records, user=user)
 

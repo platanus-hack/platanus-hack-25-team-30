@@ -4,13 +4,13 @@ from app.db import Record, User
 from app.utils.chat_parsers.message_parser import ParsedChat, ParsedMessage
 
 
-def parsed_chat_to_record(parsed_chat: ParsedChat, user: User) -> List[Record]:
+def parsed_chat_to_record(parsed_chat: ParsedChat, person_id: int) -> List[Record]:
     records: List[Record] = []
     for parsed_message in parsed_chat.messages:
         records.append(
             parsed_message_to_record(
                 parsed_message=parsed_message,
-                user=user,
+                person_id=person_id,
                 source=parsed_chat.source,
             )
         )
@@ -19,11 +19,11 @@ def parsed_chat_to_record(parsed_chat: ParsedChat, user: User) -> List[Record]:
 
 
 def parsed_message_to_record(
-    parsed_message: ParsedMessage, user: User, source: str
+    parsed_message: ParsedMessage, person_id: int, source: str
 ) -> Record:
     return Record(
         sent_from=parsed_message.sender,
-        person_id=user.id,
+        person_id=person_id,
         source=source,
         time=parsed_message.timestamp,
     )
