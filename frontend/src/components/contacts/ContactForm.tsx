@@ -409,7 +409,18 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
           </form.Field>
 
           {/* Birthday */}
-          <form.Field name="birthday">
+          <form.Field 
+            name="birthday"
+            validators={{
+              onChange: ({ value }) => {
+                const result =
+                  CreateContactSchema.shape.birthday.safeParse(value)
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message
+              },
+            }}
+          >
             {(field) => (
               <div>
                 <Label
@@ -480,8 +491,6 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                   addTag(tagInputValue)
                 }
               }
-
-              console.log(field.state.meta.errors)
 
               return (
                 <div>

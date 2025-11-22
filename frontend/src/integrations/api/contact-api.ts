@@ -5,11 +5,13 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 export const contactsApi = {
   async create(payload: CreateContactPayload): Promise<Contact> {
-    const response = await fetch(`${API_BASE_URL}/persons`, {
+    console.log('Creating contact with payload:', payload)
+    const response = await fetch(`${API_BASE_URL}/contacts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'user-token': 'test' },
       body: JSON.stringify(payload),
     })
+    console.log('Response status:', response.status)
     if (!response.ok) throw new Error('Failed to create contact')
 
     const data = await response.json()
@@ -17,7 +19,7 @@ export const contactsApi = {
   },
 
   async getAll(): Promise<Array<Contact>> {
-    const response = await fetch(`${API_BASE_URL}/persons/`, {
+    const response = await fetch(`${API_BASE_URL}/contacts`, {
       headers: { 'user-token': 'test' },
     })
     if (!response.ok) throw new Error('Failed to fetch contacts')
