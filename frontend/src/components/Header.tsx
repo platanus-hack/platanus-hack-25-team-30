@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 
 import { useState } from 'react'
 import {
@@ -8,24 +8,84 @@ import {
   BarChart3,
   Upload,
   X,
+  LogOut,
+  User as UserIcon,
 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { Card } from '@/components/ui/card'
+import { useAuth } from '@/auth'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
+  const [isUserOpen, setIsUserOpen] = useState(false)
+  const auth = useAuth()
+  const navigate = useNavigate()
 
   return (
     <>
-      <header className="p-4 flex items-center bg-white border-b border-gray-200 shadow-sm">
-        <button
-          onClick={() => setIsOpen(true)}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-700"
-          aria-label="Open menu"
-        >
-          <Menu size={24} />
-        </button>
-        <h1 className="ml-4 text-xl font-semibold text-gray-900">
-          DeepBonds
-        </h1>
+      <header className="p-4 flex items-center justify-between bg-white border-b border-gray-200 shadow-sm">
+        <div className="flex items-center">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-700"
+            aria-label="Open menu"
+          >
+            <Menu size={24} />
+          </button>
+          <h1 className="ml-4 text-xl font-semibold text-gray-900">
+            DeepBonds
+          </h1>
+        </div>
+
+        {/* User Options */}
+        {auth.user && (
+          <Popover open={isUserOpen} onOpenChange={setIsUserOpen}>
+            <PopoverTrigger asChild>
+              <Card className="p-3 cursor-pointer hover:shadow-md transition-shadow flex items-center gap-3 bg-gradient-to-r from-red-50 to-orange-50 border-red-200">
+                <div className="w-10 h-10 rounded-full bg-red-400 flex items-center justify-center text-white">
+                  <UserIcon size={20} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {auth.user}
+                  </p>
+                </div>
+              </Card>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-48 p-2">
+              <div className="flex flex-col gap-1">
+                <Button
+                  variant="ghost"
+                  className="justify-start gap-2 text-sm font-normal"
+                  onClick={() => {
+                    setIsUserOpen(false)
+                    navigate({ to: '/profile' })
+                  }}
+                >
+                  <UserIcon className="h-4 w-4" />
+                  Editar Perfil
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="justify-start gap-2 text-sm font-normal text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={async () => {
+                    await auth.logout()
+                    setIsUserOpen(false)
+                    navigate({ to: '/login' })
+                  }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
       </header>
 
       {isOpen && (
@@ -52,7 +112,7 @@ export default function Header() {
 
         <nav className="flex-1 p-4 overflow-y-auto">
           <Link
-            to="/"
+            to="/dashboard"
             onClick={() => setIsOpen(false)}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors mb-2 text-gray-700"
             activeProps={{
