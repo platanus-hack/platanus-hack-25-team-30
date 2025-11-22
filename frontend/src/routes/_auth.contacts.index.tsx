@@ -6,7 +6,7 @@ import { contactsData } from '@/data/contact-data'
 import { searchContactStore } from '@/lib/stores/contact-store'
 import { useStore } from '@tanstack/react-store'
 
-export const Route = createFileRoute('/contacts/')({
+export const Route = createFileRoute('/_auth/contacts/')({
   component: RouteComponent,
 })
 
