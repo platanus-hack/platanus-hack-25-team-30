@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 from typing import List, Optional, override
 
-from ..message_parser import MessagesParser, ParsedMessage
+from ..message_parser import MessagesParser, ParsedChat, ParsedMessage
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ class WhatsAppMessagesParser(MessagesParser):
         return merged_messages
 
     @override
-    def parse(self) -> List[ParsedMessage]:
+    def parse(self) -> ParsedChat:
         parsed_messages: List[ParsedMessage] = []
         for message in self.merged_messages:
             parsed_message = self._parse_message(message)
@@ -42,7 +42,9 @@ class WhatsAppMessagesParser(MessagesParser):
                 logger.info(f"Skipping unparseable message: {message}")
                 continue
             parsed_messages.append(parsed_message)
-        return parsed_messages
+
+        parsed_chat = ParsedChat(messages=parsed_messages, source="whatsapp")
+        return parsed_chat
 
     def _parse_message(self, message: str) -> Optional[ParsedMessage]:
         parsed_time = self._parse_time(message)
