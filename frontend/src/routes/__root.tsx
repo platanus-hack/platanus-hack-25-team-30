@@ -9,9 +9,11 @@ import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 import StoreDevtools from '../lib/demo-store-devtools'
 
 import type { QueryClient } from '@tanstack/react-query'
+import type { AuthContext } from '../auth'
 
 interface MyRouterContext {
   queryClient: QueryClient
+  auth: AuthContext
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
