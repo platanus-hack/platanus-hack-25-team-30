@@ -1,0 +1,17 @@
+[project]
+name = "uv-fastapi-example"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "black>=25.11.0",
+    "fastapi-cli>=0.0.16",
+    "fastapi[standard]>=0.112.1",
+    "ipykernel>=7.1.0",
+    "isort>=7.0.0",
+    "jupyterlab>=4.5.0",
+    "python-multipart>=0.0.20",
+    "sqlmodel>=0.0.27",
+    "tortoise-orm>=0.25.1",
+]
