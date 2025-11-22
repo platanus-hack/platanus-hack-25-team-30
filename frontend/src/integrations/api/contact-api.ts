@@ -1,16 +1,16 @@
 import type { CreateContactPayload, Contact } from '@/lib/types/contact-types'
 import { getContact } from '@/lib/mappers/contact-mappers'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 export const contactsApi = {
   async create(payload: CreateContactPayload): Promise<Contact> {
-    const response = await fetch(`${API_BASE_URL}/contacts`, {
+    const response = await fetch(`${API_BASE_URL}/persons`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', "user-token": "test" },
       body: JSON.stringify(payload),
     })
-    
+    console.log(response.ok)
     if (!response.ok) throw new Error('Failed to create contact')
     
     const data = await response.json()

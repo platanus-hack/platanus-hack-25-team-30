@@ -16,7 +16,7 @@ import { type Contact } from '@/lib/types/contact-types'
 
 interface ContactFormProps {
   onClose: () => void
-  contact?: Contact // If present, edit mode
+  contact?: Contact
 }
 
 export function ContactForm({ onClose, contact }: ContactFormProps) {
@@ -46,17 +46,24 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
         console.error('Validation failed:', result.error)
         return
       }
-      // Add avatar to data
+
       const dataWithAvatar = {
         ...result.data,
         avatar: value.avatar || imagePreview,
       }
+
       if (isEditMode && contact) {
-        updateContact(contact.id, dataWithAvatar, {
-          onSuccess: () => {
-            onClose()
+        updateContact(
+          {
+            id: contact.id,
+            updates: dataWithAvatar,
           },
-        })
+          {
+            onSuccess: () => {
+              onClose()
+            },
+          },
+        )
       } else {
         createContact(dataWithAvatar, {
           onSuccess: () => {
@@ -423,7 +430,7 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                 <Button
                   type="submit"
                   disabled={isSubmitting || isCreating || isUpdating}
-                  className="bg-red-400 hover:bg-red-500 text-white"
+                  className="bg-red-400 hover:bg-red-500 text-white cursor-pointer"
                 >
                   {isEditMode ? 'Guardar Cambios' : 'Agregar Contacto'}
                 </Button>

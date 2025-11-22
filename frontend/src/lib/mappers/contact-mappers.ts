@@ -14,6 +14,37 @@ export function createContactPayload(data: CreateContactData): CreateContactPayl
   }
 }
 
+export function updateContactPayload(data: Partial<CreateContactData>): Partial<CreateContactPayload> {
+  const payload: Partial<CreateContactPayload> = {}
+
+  if (data.firstName !== undefined) {
+    payload.first_name = data.firstName
+  }
+  if (data.lastName !== undefined) {
+    payload.last_name = data.lastName
+  }
+  if (data.relationshipType !== undefined) {
+    payload.relationship_type = data.relationshipType
+  }
+  if (data.email !== undefined) {
+    payload.email = data.email
+  }
+  if (data.phone !== undefined) {
+    payload.phone = data.phone
+  }
+  if (data.birthday !== undefined) {
+    payload.birthday = data.birthday
+  }
+  if (data.personalityTags !== undefined) {
+    payload.personality_tags = data.personalityTags
+  }
+  if (data.notes !== undefined) {
+    payload.notes = data.notes
+  }
+
+  return payload
+}
+
 export function getContact(apiResponse: any): Contact {
   return {
     id: apiResponse.id,
@@ -22,9 +53,13 @@ export function getContact(apiResponse: any): Contact {
     avatar: apiResponse.avatar,
     category: apiResponse.relationship_type,
     score: apiResponse.score,
+    email: apiResponse.email,
+    phone: apiResponse.phone,
+    birthday: apiResponse.birthday,
     lastContact: apiResponse.last_contact,
     lastConversation: apiResponse.last_conversation,
     totalInteractions: apiResponse.total_interactions,
     tags: apiResponse.personality_tags,
+    notes: apiResponse.notes,
   }
 }

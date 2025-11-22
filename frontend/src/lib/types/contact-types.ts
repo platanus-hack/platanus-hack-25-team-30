@@ -4,11 +4,15 @@ export interface Contact {
   lastName: string
   avatar: string
   category: string
+  email: string
+  phone: string
+  birthday: string
   score: number
   lastContact: string
   lastConversation: string
   totalInteractions: number
   tags: string[]
+  notes: string
 }
 
 export interface CreateContactPayload {
