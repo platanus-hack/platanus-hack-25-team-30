@@ -91,7 +91,7 @@ export default function Header() {
           </Link>
 
           <Link
-            to="/"
+            to="/import"
             onClick={() => setIsOpen(false)}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors mb-2 text-gray-700"
             activeProps={{
