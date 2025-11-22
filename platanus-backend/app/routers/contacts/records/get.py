@@ -1,12 +1,12 @@
 from typing import Annotated, List
 
-from fastapi import APIRouter, Depends
+from fastapi import Depends
 
 from app.db import Record, User
 from app.dependencies import get_user_token_header
 from app.routers.contacts.records.models import ChatMessage
 
-router = APIRouter(prefix="/{person_id}/records", tags=["records"])
+from .main import router
 
 
 @router.get("", response_model=List[ChatMessage])
@@ -27,6 +27,7 @@ async def get_chats_for_person(
             sent_from=db_record.sent_from,
             source=source,  # type: ignore
             time=db_record.time,
+            message_text=db_record.message_text,
         )
 
         chat_messages.append(chat_message)

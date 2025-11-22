@@ -48,9 +48,13 @@ async def upload_whatsapp_chat(
 
     records = parsed_chat_to_record(parsed_chat=parsed_chat, person_id=person_id)
 
-    new_records = await filter_already_uploaded_records(records=records, user=user)
+    new_records = await filter_already_uploaded_records(
+        records=records, person_id=person_id, user=user
+    )
 
-    Record.bulk_create(new_records)
+    await Record.bulk_create(new_records)
+
+    return {"uploaded_records": len(new_records)}
 
 
 def _check_file(file: UploadFile):

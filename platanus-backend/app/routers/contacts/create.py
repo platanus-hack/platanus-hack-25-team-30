@@ -45,7 +45,7 @@ class PersonResponse(Person):
 
 
 router = APIRouter(prefix="/contacts", tags=["contacts"])
-router.include_router(records_router)
+router.include_router(records_router, tags=[])
 
 
 @router.post("", response_model=PersonResponse)

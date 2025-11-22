@@ -7,7 +7,6 @@ class User(Model):
     username = fields.CharField(max_length=255)
     password = fields.CharField(max_length=255)
     created_at = fields.DatetimeField(auto_now_add=True)
-
     persons: fields.ReverseRelation["Person"]
 
     class Meta:  # type: ignore[reportIncompatibleVariableOverride]
@@ -42,6 +41,7 @@ class Record(Model):
     )
     source = fields.CharField(max_length=255)
     time = fields.DatetimeField()
+    message_text = fields.TextField()
     created_at = fields.DatetimeField(auto_now_add=True)
 
     class Meta:  # type: ignore[reportIncompatibleVariableOverride]

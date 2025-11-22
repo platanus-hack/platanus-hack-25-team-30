@@ -8,3 +8,4 @@ class ChatMessage(BaseModel):
     sent_from: str
     source: Literal["whatsapp", "telegram", "custom"]
     time: datetime
+    message_text: str
