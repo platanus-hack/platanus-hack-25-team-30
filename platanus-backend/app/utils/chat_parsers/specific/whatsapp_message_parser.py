@@ -9,18 +9,17 @@ logger = logging.getLogger(__name__)
 
 
 class WhatsAppMessagesParser(MessagesParser):
-    time_pattern = re.compile(r'\[(.*?)\]')
-    message_pattern = re.compile(r': (.*)')
-    user_pattern = re.compile(r'\](.*?):')
+    time_pattern = re.compile(r"\[(.*?)\]")
+    message_pattern = re.compile(r": (.*)")
+    user_pattern = re.compile(r"\](.*?):")
 
     merged_messages: List[str]
 
     def __init__(self, raw_messages: List[str]):
         messages = raw_messages
-        self.merged_messages = self.merge_messages(messages)
+        self.merged_messages = self._merge_messages(messages)
 
-
-    def merge_messages(self, messages: List[str]) -> List[str]:
+    def _merge_messages(self, messages: List[str]) -> List[str]:
         merged_messages = []
         for message in messages:
             message = message.replace("\u202f", " ")
@@ -38,27 +37,25 @@ class WhatsAppMessagesParser(MessagesParser):
     def parse(self) -> List[ParsedMessage]:
         parsed_messages: List[ParsedMessage] = []
         for message in self.merged_messages:
-            parsed_message = self.parse_message(message)
+            parsed_message = self._parse_message(message)
             if parsed_message is None:
                 logger.info(f"Skipping unparseable message: {message}")
                 continue
             parsed_messages.append(parsed_message)
         return parsed_messages
 
-    def parse_message(self, message: str) -> Optional[ParsedMessage]:
-        parsed_time = self.parse_time(message)
-        parsed_sender = self.parse_sender(message)
-        parsed_text = self.parse_message_text(message) 
+    def _parse_message(self, message: str) -> Optional[ParsedMessage]:
+        parsed_time = self._parse_time(message)
+        parsed_sender = self._parse_sender(message)
+        parsed_text = self._parse_message_text(message)
         if not parsed_time or not parsed_sender or not parsed_text:
             return None
         return ParsedMessage(
-            timestamp=parsed_time,
-            sender=parsed_sender,
-            message_text=parsed_text
+            timestamp=parsed_time, sender=parsed_sender, message_text=parsed_text
         )
 
     @classmethod
-    def parse_time(cls, message: str) -> Optional[datetime]:
+    def _parse_time(cls, message: str) -> Optional[datetime]:
         time_match = cls.time_pattern.search(message)
         if not time_match:
             logger.warning(f"Time pattern not found in message: {message}")
@@ -72,7 +69,7 @@ class WhatsAppMessagesParser(MessagesParser):
         return parsed_time
 
     @classmethod
-    def parse_sender(cls, message: str) -> Optional[str]:
+    def _parse_sender(cls, message: str) -> Optional[str]:
         user_match = cls.user_pattern.search(message)
         if not user_match:
             logger.warning("User pattern not found in message")
@@ -84,7 +81,7 @@ class WhatsAppMessagesParser(MessagesParser):
         return user_str.strip()
 
     @classmethod
-    def parse_message_text(cls, message) -> Optional[str]:
+    def _parse_message_text(cls, message) -> Optional[str]:
         message_match = cls.message_pattern.search(message)
         if not message_match:
             logger.warning("Message text pattern not found in message")

@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import Depends, FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 
@@ -6,6 +8,10 @@ from .dependencies import get_token_header, get_user_token_header
 from .internal import admin
 from .routers import users
 from .routers.persons import create as persons
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 
 app = FastAPI(dependencies=[Depends(get_user_token_header)])
 
