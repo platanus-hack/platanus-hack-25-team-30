@@ -52,14 +52,13 @@ router.include_router(records_router, tags=[])
 async def create_person(
     person: Person,
     user: Annotated[User, Depends(get_user_token_header)],
-    person_photo: Annotated[Optional[bytes], File()] = None,
 ):
     # Create the person in the database
     created_person = await PersonModel.create(
         user=user,
         first_name=person.first_name,
         last_name=person.last_name,
-        photo=person_photo,
+        photo=None,
         relationship_type=person.relationship_type,
         email=person.email,
         phone=person.phone,
@@ -110,6 +109,24 @@ async def get_person(
         personality_tags=person.personality_tags,
         notes=person.notes,
     )
+
+
+@router.post("/{person_id}/photo", response_model=PersonResponse)
+async def upload_person_photo(
+    person_id: int,
+    person_photo: Annotated[bytes, File()],
+    user: Annotated[User, Depends(get_user_token_header)],
+):
+    # Fetch the person from the database
+    person = await PersonModel.get_or_none(id=person_id, user=user)
+    if not person:
+        raise HTTPException(status_code=404, detail="Person not found")
+
+    # Update the person's photo
+    person.photo = person_photo
+    await person.save()
+
+    return await get_person(person_id=person_id, user=user)
 
 
 @router.get("/{person_id}/photo")
