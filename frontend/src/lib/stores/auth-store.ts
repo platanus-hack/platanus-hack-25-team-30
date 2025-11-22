@@ -59,7 +59,7 @@ export const authActions = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, password }),
+        body: JSON.stringify({ username: name, password }),
       })
 
       const data = await response.json()
@@ -69,13 +69,13 @@ export const authActions = {
       }
 
       const userData: User = {
-        id: data.id || data.user?.id,
-        name: data.name || data.user?.name || name,
+        id: data.id?.toString() || data.user?.id?.toString(),
+        name: data.username || data.user?.username || name,
         email: data.email || data.user?.email,
         avatar: data.avatar || data.user?.avatar,
       }
 
-      const token = data.token || data.access_token
+      const token = data.user_token || data.token || data.access_token
 
       // Update store
       authStore.setState((state) => ({
@@ -103,7 +103,7 @@ export const authActions = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, password }),
+        body: JSON.stringify({ username: name, password }),
       })
 
       const data = await response.json()
@@ -113,13 +113,13 @@ export const authActions = {
       }
 
       const userData: User = {
-        id: data.id || data.user?.id,
-        name: data.name || data.user?.name || name,
+        id: data.id?.toString() || data.user?.id?.toString(),
+        name: data.username || data.user?.username || name,
         email: data.email || data.user?.email,
         avatar: data.avatar || data.user?.avatar,
       }
 
-      const token = data.token || data.access_token
+      const token = data.user_token || data.token || data.access_token
 
       // Update store
       authStore.setState((state) => ({
