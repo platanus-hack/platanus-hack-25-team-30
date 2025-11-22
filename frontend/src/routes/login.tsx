@@ -35,25 +35,19 @@ function LoginComponent() {
     evt.preventDefault()
     setIsSubmitting(true)
     setError('')
-    
+
     try {
       const data = new FormData(evt.currentTarget)
       const username = data.get('username')?.toString()
       const password = data.get('password')?.toString()
-      
+
       if (!username || !password) {
         setError('Please fill in all fields')
         return
       }
 
       if (isRegister) {
-        const email = data.get('email')?.toString()
-        if (!email) {
-          setError('Please fill in all fields')
-          return
-        }
-        
-        const result = await auth.register(username, email, password)
+        const result = await auth.register(username, password)
         if (!result.success) {
           setError(result.error || 'Registration failed')
           return
@@ -104,7 +98,9 @@ function LoginComponent() {
             </svg>
           </div>
           <h1 className="text-4xl font-bold mb-4">Talk2Me</h1>
-          <p className="text-xl text-white/90">Manage your relationships with ease</p>
+          <p className="text-xl text-white/90">
+            Manage your relationships with ease
+          </p>
         </div>
       </div>
 
@@ -153,7 +149,10 @@ function LoginComponent() {
                   }`}
                 >
                   <div className="space-y-2">
-                    <label htmlFor="username-input" className="text-sm font-medium">
+                    <label
+                      htmlFor="username-input"
+                      className="text-sm font-medium"
+                    >
                       Username
                     </label>
                     <Input
@@ -166,29 +165,11 @@ function LoginComponent() {
                     />
                   </div>
 
-                  {/* Email field - only for register */}
-                  <div
-                    className={`space-y-2 transition-all duration-500 overflow-hidden ${
-                      isRegister
-                        ? 'max-h-24 opacity-100'
-                        : 'max-h-0 opacity-0'
-                    }`}
-                  >
-                    <label htmlFor="email-input" className="text-sm font-medium">
-                      Email
-                    </label>
-                    <Input
-                      id="email-input"
-                      name="email"
-                      placeholder="Enter your email"
-                      type="email"
-                      required={isRegister}
-                      className="transition-all duration-300"
-                    />
-                  </div>
-
                   <div className="space-y-2">
-                    <label htmlFor="password-input" className="text-sm font-medium">
+                    <label
+                      htmlFor="password-input"
+                      className="text-sm font-medium"
+                    >
                       Password
                     </label>
                     <Input
@@ -207,21 +188,25 @@ function LoginComponent() {
                   className="w-full transition-all duration-300 hover:scale-105"
                   disabled={isLoggingIn}
                   style={{
-                    backgroundColor: isRegister ? 'var(--app-neutral)' : 'var(--app-primary)',
+                    backgroundColor: isRegister
+                      ? 'var(--app-neutral)'
+                      : 'var(--app-primary)',
                   }}
                 >
                   {isLoggingIn
                     ? 'Please wait...'
                     : isRegister
-                    ? 'Create Account'
-                    : 'Login'}
+                      ? 'Create Account'
+                      : 'Login'}
                 </Button>
               </fieldset>
             </form>
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
-                {isRegister ? 'Already have an account?' : "Don't have an account?"}{' '}
+                {isRegister
+                  ? 'Already have an account?'
+                  : "Don't have an account?"}{' '}
                 <button
                   type="button"
                   onClick={toggleMode}

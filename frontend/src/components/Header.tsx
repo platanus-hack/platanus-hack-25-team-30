@@ -52,7 +52,7 @@ export default function Header() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">
-                    {auth.user}
+                    {auth.user.name}
                   </p>
                 </div>
               </Card>
