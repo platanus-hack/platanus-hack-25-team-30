@@ -27,3 +27,17 @@ def parsed_message_to_record(
         source=source,
         time=parsed_message.timestamp,
     )
+
+
+async def filter_already_uploaded_records(
+    records: List[Record], user: User
+) -> List[Record]:
+    existing_records = await Record.filter(user_id=user.id)
+    existing_time = set([existing_record.time for existing_record in existing_records])
+
+    filtered_records = []
+    for record in records:
+        if record.time not in existing_time:
+            filtered_records.append(record)
+
+    return filtered_records
