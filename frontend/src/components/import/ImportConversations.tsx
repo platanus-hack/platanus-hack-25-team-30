@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { MessageCircle, Send } from 'lucide-react'
+import { MessageCircle } from 'lucide-react'
 import { WhatsAppImport } from './WhatsAppImport'
-import { TelegramImport } from './TelegramImport'
 
 type ImportTab = 'whatsapp' | 'telegram'
 
