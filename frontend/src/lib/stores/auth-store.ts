@@ -83,13 +83,11 @@ export const authActions = {
         username: username,
       }
 
-      const token = username
-
       // Update store
       authStore.setState((state) => ({
         ...state,
         user: userData,
-        token: token,
+        token: data.user_token,
       }))
 
       return { success: true }
@@ -123,13 +121,11 @@ export const authActions = {
         username: username,
       }
 
-      const token = username
-
       // Update store
       authStore.setState((state) => ({
         ...state,
         user: userData,
-        token: token,
+        token: data.user_token,
       }))
 
       return { success: true }

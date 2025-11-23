@@ -1,9 +1,24 @@
-from datetime import datetime
+import os
+from datetime import datetime, timedelta, timezone
 
+import jwt
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from app.db import User
+
+JWT_SECRET = os.getenv("JWT_SECRET", "fallback-secret-change-me")
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRATION_DAYS = 7
+
+
+def create_jwt_token(username: str) -> str:
+    """Create a JWT token with username and 1 week expiration."""
+    payload = {
+        "username": username,
+        "exp": datetime.now(timezone.utc) + timedelta(days=JWT_EXPIRATION_DAYS),
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
 class RegisterUser(BaseModel):
@@ -52,6 +67,6 @@ async def login_user(user: LoginUser):
     return LoggedInUser(
         id=db_user.id,
         username=db_user.username,
-        user_token=db_user.username,
+        user_token=create_jwt_token(db_user.username),
         created_at=db_user.created_at,
     )
