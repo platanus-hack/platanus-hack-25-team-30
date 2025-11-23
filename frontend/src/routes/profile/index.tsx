@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { authStore } from '@/lib/schemas/stores/auth-store'
+import { authStore } from '@/lib/stores/auth-store'
 
 export const Route = createFileRoute('/profile/')({
   component: RouteComponent,

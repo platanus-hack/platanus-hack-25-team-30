@@ -38,8 +38,6 @@ class Person(BaseModel):
     first_name: str = Field(examples=["Eduardo"])
     last_name: str = Field(examples=["Caceres"])
     relationship_type: RELATIONSHIP_TYPES = Field(examples=[relationship_types[0]])
-    email: Optional[str] = Field(default=None, examples=["eduardo.caceres@platanus.cl"])
-    phone: Optional[str] = Field(default=None, examples=["+56 9 2345 1223"])
     birthday: date = Field(examples=[date(1990, 5, 21)])
     personality_tags: List[str] = Field(default=[], examples=[["neurotico"]])
     notes: str = Field(default="", examples=[""])
@@ -61,8 +59,6 @@ async def create_person(
         last_name=person.last_name,
         photo=None,
         relationship_type=person.relationship_type,
-        email=person.email,
-        phone=person.phone,
         birthday=person.birthday,
         personality_tags=person.personality_tags,
         notes=person.notes,
@@ -104,8 +100,6 @@ async def get_person(
         first_name=person.first_name,
         last_name=person.last_name,
         relationship_type=person.relationship_type,
-        email=person.email,
-        phone=person.phone,
         birthday=person.birthday,
         personality_tags=person.personality_tags,
         notes=person.notes,

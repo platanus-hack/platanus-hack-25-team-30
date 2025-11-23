@@ -29,7 +29,7 @@ def create_person_system_prompt(
     history_text = ""
     if message_history:
         history_text = f"\n\nHistorial de conversaciones anteriores entre tu ({first_name}) y {user_name}:\n"
-        for msg in message_history[-200:]:  # Last 50 messages for context
+        for msg in message_history[-1000:]:  # Last 50 messages for context
             sender = msg["sent_from"]
             history_text += f"- Sent from ({sender}): {msg['message_text']}\n"
 
@@ -73,13 +73,26 @@ def chat_with_person(
                             Format: [{"role": "user"|"assistant", "content": "..."}]
     """
     # Build messages list with conversation history + new message
-    messages = conversation_history + [{"role": "user", "content": user_message}]
+    system_message = {
+        "role": "user",
+        "content": [
+            {
+                "type": "text",
+                "text": system_prompt,
+                "cache_control": {"type": "ephemeral"},
+            }
+        ],
+    }
+    messages = (
+        [system_message]
+        + conversation_history
+        + [{"role": "user", "content": user_message}]
+    )
 
     response = client.chat.completions.create(
         model="claude-sonnet-4-5-20250929",
         max_tokens=1024,
         messages=messages,
-        system=system_prompt,
         response_model=ChatResponse,
     )
     return response
