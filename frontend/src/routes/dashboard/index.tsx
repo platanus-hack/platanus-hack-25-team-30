@@ -183,14 +183,14 @@ function RouteComponent() {
   }, [sortBy, mergedContacts])
 
   const getHealthColor = (score: number) => {
-    if (score >= 85) return 'text-green-600'
-    if (score >= 60) return 'text-orange-500'
+    if (score >= 80) return 'text-green-600'
+    if (score >= 50) return 'text-orange-500'
     return 'text-red-500'
   }
 
   const getHealthBorderColor = (score: number) => {
-    if (score >= 85) return 'border-green-600'
-    if (score >= 60) return 'border-orange-500'
+    if (score >= 80) return 'border-green-600'
+    if (score >= 50) return 'border-orange-500'
     return 'border-red-500'
   }
 
@@ -414,9 +414,9 @@ function RouteComponent() {
                       cy="48"
                       r="40"
                       stroke={
-                        (mergedContact.stats?.health_score ?? 0) >= 85
+                        (mergedContact.stats?.health_score ?? 0) >= 80
                           ? '#16a34a'
-                          : (mergedContact.stats?.health_score ?? 0) >= 60
+                          : (mergedContact.stats?.health_score ?? 0) >= 50
                             ? '#f97316'
                             : '#dc2626'
                       }
