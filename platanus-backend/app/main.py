@@ -23,6 +23,8 @@ app = FastAPI(dependencies=[])
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "http://hackathon.buzeta.net",
+    "https://hackathon.buzeta.net",
 ]
 
 app.add_middleware(
