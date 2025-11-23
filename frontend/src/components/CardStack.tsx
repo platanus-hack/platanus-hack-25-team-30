@@ -4,6 +4,7 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
+  Heart,
   Lightbulb,
   TrendingUp,
 } from 'lucide-react'
@@ -11,10 +12,12 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
 interface CardData {
-  type: 'tip' | 'stat' | 'globalStat' | 'reminder'
+  type: 'tip' | 'stat' | 'globalStat' | 'reminder' | 'statContact'
   message: string
   title?: string
   icon?: React.ReactNode
+  contactName?: string
+  avatarElement?: React.ReactNode
 }
 
 interface CardStackProps {
@@ -128,6 +131,8 @@ export function CardStack({
         return <Calendar className="w-5 h-5" />
       case 'reminder':
         return <Bell className="w-5 h-5" />
+      case 'statContact':
+        return <Heart className="w-5 h-5" />
       default:
         return <Lightbulb className="w-5 h-5" />
     }
@@ -143,6 +148,8 @@ export function CardStack({
         return 'bg-purple-50 border-purple-200 text-purple-900'
       case 'reminder':
         return 'bg-orange-50 border-orange-200 text-orange-900'
+      case 'statContact':
+        return 'bg-pink-50 border-pink-200 text-pink-900'
       default:
         return 'bg-gray-50 border-gray-200 text-gray-900'
     }
@@ -158,6 +165,8 @@ export function CardStack({
         return 'bg-purple-100 text-purple-600'
       case 'reminder':
         return 'bg-orange-100 text-orange-600'
+      case 'statContact':
+        return 'bg-pink-100 text-pink-600'
       default:
         return 'bg-gray-100 text-gray-600'
     }
@@ -173,6 +182,8 @@ export function CardStack({
         return '¿Sabías que?'
       case 'reminder':
         return 'Recordatorio'
+      case 'statContact':
+        return '🎉 ¡Felicidades!'
       default:
         return 'Info'
     }
@@ -182,7 +193,7 @@ export function CardStack({
     <div className="w-full max-w-2xl mx-auto">
       {/* Card Stack Container */}
       <div
-        className="relative h-48 mb-6 cursor-grab active:cursor-grabbing"
+        className="relative h-40 mb-6 cursor-grab active:cursor-grabbing"
         onMouseDown={handleDragStart}
         onMouseMove={handleDragMove}
         onMouseUp={handleDragEnd}
@@ -227,15 +238,40 @@ export function CardStack({
               }}
             >
               <div className="flex items-start gap-4 h-full">
-                <div className={`p-3 rounded-lg ${iconBgColor} flex-shrink-0`}>
-                  {getCardIcon(card.type)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold mb-2">{cardTitle}</h3>
-                  <p className="text-sm leading-relaxed opacity-90">
-                    {card.message}
-                  </p>
-                </div>
+                {card.type === 'statContact' && card.avatarElement ? (
+                  <>
+                    <div
+                      className={`p-3 rounded-lg ${iconBgColor} flex-shrink-0 animate-pulse`}
+                    >
+                      {getCardIcon(card.type)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold mb-2">
+                        {cardTitle}
+                      </h3>
+                      <p className="text-sm leading-relaxed opacity-90">
+                        {card.message}
+                      </p>
+                    </div>
+                    <div className="flex-shrink-0">{card.avatarElement}</div>
+                  </>
+                ) : (
+                  <>
+                    <div
+                      className={`p-3 rounded-lg ${iconBgColor} flex-shrink-0`}
+                    >
+                      {getCardIcon(card.type)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold mb-2">
+                        {cardTitle}
+                      </h3>
+                      <p className="text-sm leading-relaxed opacity-90">
+                        {card.message}
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             </Card>
           )

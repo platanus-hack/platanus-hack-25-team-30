@@ -144,23 +144,21 @@ function ContactShowComponent() {
   }
 
   const formatMessageTime = (isoString?: string) => {
-    if (!isoString) return 'Sin interacciones'
+    if (!isoString) return { date: 'Sin fecha', time: '' }
     const date = new Date(isoString)
+
+    const dateStr = date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+
     const time = date.toLocaleTimeString('es-ES', {
       hour: '2-digit',
       minute: '2-digit',
     })
-    const dateStr = date
-      .toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      })
-      .split('/')
-      .reverse()
-      .join('-')
 
-    return `${time} ${dateStr}`
+    return { date: dateStr, time }
   }
 
   const formatResponseTime = (minutes: number) => {
@@ -410,7 +408,8 @@ function ContactShowComponent() {
                         Conectando...
                       </Badge>
                     )}
-                    {(connectionStatus === 'disconnected' || connectionStatus === 'error') && (
+                    {(connectionStatus === 'disconnected' ||
+                      connectionStatus === 'error') && (
                       <Badge className="bg-red-100 text-red-700 flex items-center gap-1">
                         <WifiOff className="w-3 h-3" />
                         Desconectado
@@ -435,7 +434,8 @@ function ContactShowComponent() {
                 {messages.length === 0 && connectionStatus === 'connected' && (
                   <div className="flex items-center justify-center h-full">
                     <p className="text-gray-500 text-sm">
-                      Envía un mensaje para comenzar la conversación con {contact.first_name}
+                      Envía un mensaje para comenzar la conversación con{' '}
+                      {contact.first_name}
                     </p>
                   </div>
                 )}
@@ -497,7 +497,11 @@ function ContactShowComponent() {
                 <div className="flex items-center gap-2">
                   <Button
                     onClick={handleSend}
-                    disabled={isLoading || !input.trim() || connectionStatus !== 'connected'}
+                    disabled={
+                      isLoading ||
+                      !input.trim() ||
+                      connectionStatus !== 'connected'
+                    }
                     className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
                   >
                     <MessageCircle className="w-4 h-4 mr-2" />
@@ -512,8 +516,9 @@ function ContactShowComponent() {
                   </Button>
                 </div>
                 <p className="text-xs text-gray-500 text-center">
-                  Esta es una conversación simulada. Las respuestas son generadas por IA
-                  basándose en el estilo de comunicación de {contact.first_name}.
+                  Esta es una conversación simulada. Las respuestas son
+                  generadas por IA basándose en el estilo de comunicación de{' '}
+                  {contact.first_name}.
                 </p>
               </div>
             </Card>
@@ -526,22 +531,32 @@ function ContactShowComponent() {
                 Mensajes Recientes
               </h3>
               <div className="space-y-4">
-                {sortedChats.slice(0, 5).map((chat) => (
-                  <div key={chat.id} className="p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <MessageCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm font-medium text-gray-900 capitalize">
-                          {chat.source}
-                        </span>
+                {sortedChats.slice(0, 5).map((chat) => {
+                  const { date, time } = formatMessageTime(chat.time)
+                  return (
+                    <div key={chat.id} className="p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2">
+                          <MessageCircle className="w-4 h-4 text-green-600" />
+                          <span className="text-sm font-medium text-gray-900 capitalize">
+                            {chat.source}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs text-gray-600 font-medium">
+                            {date}
+                          </div>
+                          <div className="text-[10px] text-gray-400">
+                            {time}
+                          </div>
+                        </div>
                       </div>
-                      <span className="text-xs text-gray-500">
-                        {formatMessageTime(chat.time)}
-                      </span>
+                      <p className="text-sm text-gray-700">
+                        {chat.message_text}
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-700">{chat.message_text}</p>
-                  </div>
-                ))}
+                  )
+                })}
                 {sortedChats.length === 0 && (
                   <p className="text-sm text-gray-500">
                     No hay mensajes cargados para este contacto.

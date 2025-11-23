@@ -42,8 +42,10 @@ interface AverageStats {
 }
 
 interface MockTipOrInsight {
-  type: 'tip' | 'stat' | 'globalStat' | 'reminder'
+  type: 'tip' | 'stat' | 'globalStat' | 'reminder' | 'statContact'
   message: string
+  contactName?: string
+  avatarElement?: React.ReactNode
 }
 
 // Get keys for sorting
@@ -143,8 +145,36 @@ function RouteComponent() {
     }
   }, [mergedContacts, contacts.length])
 
+  // Get favorite contact (highest score)
+  const favoriteContact = useMemo(() => {
+    const contactsWithStats = mergedContacts.filter((mc) => mc.stats !== null)
+    if (contactsWithStats.length === 0) return null
+    return contactsWithStats.reduce((prev, current) =>
+      (current.stats?.health_score ?? 0) > (prev.stats?.health_score ?? 0)
+        ? current
+        : prev,
+    )
+  }, [mergedContacts])
+
   // Por mostrar utiliza un sample de los mergedContacts para cada dato
   const mockTips: Array<MockTipOrInsight> = [
+    ...(favoriteContact
+      ? [
+          {
+            type: 'statContact' as const,
+            message: `¡${favoriteContact.contact.first_name} ${favoriteContact.contact.last_name} es tu contacto favorito!`,
+            contactName: `${favoriteContact.contact.first_name} ${favoriteContact.contact.last_name}`,
+            avatarElement: (
+              <ContactAvatarWithPhoto
+                contactId={favoriteContact.contact.id}
+                token={token}
+                firstName={favoriteContact.contact.first_name}
+                lastName={favoriteContact.contact.last_name}
+              />
+            ),
+          },
+        ]
+      : []),
     {
       type: 'tip',
       message:
