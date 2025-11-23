@@ -199,7 +199,7 @@ export function ContactForm({ onClose, contact, avatar }: ContactFormProps) {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
-                  placeholder="John Doe"
+                  placeholder="Miguel"
                   className={`mt-2 ${
                     field.state.meta.errors.length > 0 &&
                     field.state.meta.isTouched
@@ -246,7 +246,7 @@ export function ContactForm({ onClose, contact, avatar }: ContactFormProps) {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
-                  placeholder="Smith"
+                  placeholder="Rodriguez"
                   className={`mt-2 ${
                     field.state.meta.errors.length > 0 &&
                     field.state.meta.isTouched
@@ -342,7 +342,7 @@ export function ContactForm({ onClose, contact, avatar }: ContactFormProps) {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
-                  placeholder="john@example.com"
+                  placeholder="miguel.rodriguez@example.com"
                   className={`mt-2 ${
                     field.state.meta.errors.length > 0 &&
                     field.state.meta.isTouched
@@ -379,7 +379,7 @@ export function ContactForm({ onClose, contact, avatar }: ContactFormProps) {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
-                  placeholder="+1 234-567-8900"
+                  placeholder="+56 9 1234 5678"
                   className={`mt-2 ${
                     field.state.meta.errors.length > 0 &&
                     field.state.meta.isTouched
@@ -526,7 +526,6 @@ export function ContactForm({ onClose, contact, avatar }: ContactFormProps) {
                         addTag(tagInputValue)
                       }
                     }}
-                    placeholder="Escribe una etiqueta y presiona Enter"
                     className={`mt-2 ${
                       field.state.meta.errors.length > 0 &&
                       field.state.meta.isTouched
@@ -535,7 +534,7 @@ export function ContactForm({ onClose, contact, avatar }: ContactFormProps) {
                     }`}
                   />
 
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 mt-1 pl-1">
                     Presiona{' '}
                     <kbd className="px-1.5 py-0.5 text-xs font-semibold bg-gray-100 border border-gray-300 rounded">
                       Enter
@@ -572,7 +571,7 @@ export function ContactForm({ onClose, contact, avatar }: ContactFormProps) {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
-                  placeholder="Important information about this person..."
+                  placeholder="Información adicional sobre el contacto..."
                   rows={4}
                   className={`mt-2 ${
                     field.state.meta.errors.length > 0 &&

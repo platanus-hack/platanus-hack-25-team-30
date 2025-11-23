@@ -35,7 +35,7 @@ function RouteComponent() {
   }, [searchValue, contacts])
 
   return (
-    <div className="min-h-screen bg-[#f5f3f0] p-8">
+    <div className="min-h-screen bg-(--app-secondary) p-8">
       <div className="max-w-7xl mx-auto">
         <ContactsHeader />
         <ContactsGrid contacts={filteredContacts} />

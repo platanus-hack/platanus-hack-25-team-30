@@ -184,7 +184,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="w-full h-full bg-[var(--app-secondary)] p-8 overflow-auto">
+    <div className="w-full h-full bg-(--app-secondary) p-8 overflow-auto">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">

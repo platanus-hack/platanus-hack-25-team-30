@@ -72,9 +72,6 @@ export function ContactCard({
                 </p>
               </div>
             </div>
-            <Button variant="ghost" size="icon-sm" className="text-gray-400">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
           </div>
 
           {/* Score */}
