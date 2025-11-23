@@ -15,7 +15,6 @@ import reportWebVitals from './reportWebVitals.ts'
 console.log('API_BASE_URL:', API_BASE_URL)
 
 // Create a new router instance
-
 const TanStackQueryProviderContext = TanStackQueryProvider.getContext()
 const router = createRouter({
   routeTree,

@@ -1,18 +1,59 @@
 import { Store } from '@tanstack/react-store'
+import { z } from 'zod'
+import { API_BASE_URL } from '@/integrations/api/load-env'
 
-const API_BASE_URL = 'http://localhost:8000'
+const STORAGE_KEY = 'app_auth_state'
 
-export interface User {
-  username: string
-}
+const UserSchema = z.object({
+  username: z.string(),
+})
+const AuthStateSchema = z.object({
+  user: UserSchema,
+  token: z.string(),
+})
 
-interface AuthState {
-  user: User
-  token: string
+export type User = z.infer<typeof UserSchema>
+type AuthState = z.infer<typeof AuthStateSchema>
+
+const parseJson = (val: unknown) => {
+  if (typeof val === 'string') {
+    try {
+      return JSON.parse(val)
+    } catch {
+      return null
+    }
+  }
+  return null
 }
 
 // Initialize store with stored values
-export const authStore = new Store<AuthState | null>(null)
+export const authStore = new Store<AuthState | null>(
+  (() => {
+    if (typeof window === 'undefined') return null // Server-side safety
+
+    const saved = localStorage.getItem(STORAGE_KEY)
+
+    const parsedJson = parseJson(saved)
+
+    const parsed = AuthStateSchema.safeParse(parsedJson)
+
+    const state = parsed.success ? parsed.data : null
+
+    return state
+  })(),
+)
+
+authStore.subscribe((state) => {
+  if (state.currentVal) {
+    const currentVal = state.currentVal
+    // Check schema validity before saving
+    AuthStateSchema.parse(currentVal)
+    const serialized = JSON.stringify(currentVal)
+    localStorage.setItem(STORAGE_KEY, serialized)
+  } else {
+    localStorage.removeItem(STORAGE_KEY)
+  }
+})
 
 // Auth actions
 export const authActions = {
