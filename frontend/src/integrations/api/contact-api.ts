@@ -86,10 +86,7 @@ export const contactsApi = {
     return data
   },
 
-  async getStats(
-    contactId: number,
-    userToken: string,
-  ): Promise<Stats> {
+  async getStats(contactId: number, userToken: string): Promise<Stats> {
     const response = await fetch(
       `${API_BASE_URL}/contacts/${contactId}/stats`,
       {

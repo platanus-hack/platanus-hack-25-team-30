@@ -1,12 +1,16 @@
-import random
 from datetime import datetime, timedelta
 from typing import Annotated, List, Optional
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
-from app.db import Record, User
+from app.db import ContactStatsCache, Person, Record, User
 from app.dependencies import get_user_token_header
+from app.utils.llm.client import (
+    analyze_last_conversation_topic,
+    analyze_relationship_health,
+    get_instructor_client,
+)
 
 
 class ContactStats(BaseModel):
@@ -27,15 +31,83 @@ async def get_person(
     person_id: int,
     user: Annotated[User, Depends(get_user_token_header)],
 ):
-    health_score = await calculate_health_score(person_id, user)
-    health_status = await calculate_health_status(person_id, user)
-    total_interactions = await calculate_total_interactions(person_id, user)
+    # Check if cached stats exist
+    cached_stats = await ContactStatsCache.filter(
+        person_id=person_id, person__user_id=user.id
+    ).first()
+
+    if cached_stats:
+        return ContactStats(
+            health_score=cached_stats.health_score,
+            health_status=cached_stats.health_status,
+            total_interactions=cached_stats.total_interactions,
+            last_interaction_date=cached_stats.last_interaction_date,
+            last_conversation_topic=cached_stats.last_conversation_topic,
+            response_time_median_min=cached_stats.response_time_median_min,
+            communication_balance=cached_stats.communication_balance,
+        )
+
+    # No cache exists, calculate stats
+    person = await Person.filter(id=person_id, user_id=user.id).first()
+    records = await Record.filter(person_id=person_id, person__user__id=user.id).all()
+
+    # Calculate basic metrics first
+    total_interactions = len(records)
     last_interaction_date = await calculate_last_interaction_date(person_id, user)
-    last_conversation_topic = await calculate_last_conversation_topic(person_id, user)
-    response_time_average_min = await calculate_response_time_median_min(
+    response_time_median_min = await calculate_response_time_median_min(
         person_id, user
     )
     communication_balance = await calculate_communication_balance(person_id, user)
+
+    # Prepare message history for LLM
+    message_history = [
+        {"sent_from": r.sent_from, "message_text": r.message_text}
+        for r in sorted(records, key=lambda r: r.time)
+    ]
+
+    # Use LLM for health score and topic analysis
+    try:
+        client = get_instructor_client()
+
+        # Analyze health score
+        health_analysis = analyze_relationship_health(
+            client=client,
+            first_name=person.first_name if person else "Contacto",
+            relationship_type=person.relationship_type if person else "Desconocido",
+            message_history=message_history,
+            user_name=user.username,
+            total_interactions=total_interactions,
+            response_time_median_min=response_time_median_min,
+            communication_balance=communication_balance,
+        )
+        health_score = health_analysis.health_score
+        health_status = health_analysis.health_status
+
+        # Analyze last conversation topic
+        topic_analysis = analyze_last_conversation_topic(
+            client=client,
+            first_name=person.first_name if person else "Contacto",
+            message_history=message_history,
+        )
+        last_conversation_topic = topic_analysis.topic
+
+    except Exception:
+        # Fallback to placeholder values if LLM fails
+        health_score = 50
+        health_status = "Sin analizar"
+        last_conversation_topic = "General Chat"
+
+    # Save to cache
+    await ContactStatsCache.create(
+        person_id=person_id,
+        health_score=health_score,
+        health_status=health_status,
+        last_conversation_topic=last_conversation_topic,
+        total_interactions=total_interactions,
+        last_interaction_date=last_interaction_date,
+        response_time_median_min=response_time_median_min,
+        communication_balance=communication_balance,
+    )
 
     return ContactStats(
         health_score=health_score,
@@ -43,23 +115,9 @@ async def get_person(
         total_interactions=total_interactions,
         last_interaction_date=last_interaction_date,
         last_conversation_topic=last_conversation_topic,
-        response_time_median_min=response_time_average_min,
+        response_time_median_min=response_time_median_min,
         communication_balance=communication_balance,
     )
-
-
-async def calculate_health_score(person_id: int, user: User) -> int:
-    return 50
-
-
-async def calculate_health_status(person_id: int, user: User) -> str:
-    return "placeholder"
-
-
-async def calculate_total_interactions(person_id: int, user: User) -> int:
-    records = await Record.filter(person_id=person_id, person__user__id=user.id).all()
-
-    return len(records)
 
 
 async def calculate_last_interaction_date(
@@ -73,11 +131,6 @@ async def calculate_last_interaction_date(
         return None
 
     return record.time
-
-
-async def calculate_last_conversation_topic(person_id: int, user: User) -> str:
-    # Placeholder implementation
-    return "General Chat"
 
 
 async def calculate_response_time_median_min(
@@ -130,8 +183,6 @@ async def calculate_communication_balance(
     received_count = sum(1 for r in records if r.sent_from != "user")
 
     if received_count == 0:
-        return 1
+        return 1.0
 
-    # return sent_count / received_count
-
-    return random.uniform(0, 1)
+    return sent_count / received_count

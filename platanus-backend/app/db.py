@@ -47,6 +47,24 @@ class Record(Model):
         table = "record"
 
 
+class ContactStatsCache(Model):
+    id = fields.IntField(primary_key=True)
+    person: fields.OneToOneRelation[Person] = fields.OneToOneField(
+        "models.Person", related_name="stats_cache", on_delete=fields.CASCADE
+    )
+    health_score = fields.IntField()
+    health_status = fields.CharField(max_length=50)
+    last_conversation_topic = fields.CharField(max_length=255)
+    total_interactions = fields.IntField()
+    last_interaction_date = fields.DatetimeField(null=True)
+    response_time_median_min = fields.FloatField(null=True)
+    communication_balance = fields.FloatField(null=True)
+    created_at = fields.DatetimeField(auto_now_add=True)
+
+    class Meta:  # type: ignore[reportIncompatibleVariableOverride]
+        table = "contact_stats_cache"
+
+
 TORTOISE_ORM = {
     "connections": {"default": "sqlite://database.db"},
     "apps": {

@@ -35,7 +35,7 @@ import { Badge } from '@/components/ui/badge'
 import { CardStack } from '@/components/CardStack'
 import { authStore } from '@/lib/stores/auth-store'
 import { useContacts } from '@/hooks/contact-hook'
-import { useContactPhoto } from '@/hooks/contact-photo-hook'
+import { ContactAvatar } from '@/components/contacts/ContactAvatar'
 
 export const Route = createFileRoute('/dashboard/')({
   component: RouteComponent,
@@ -85,16 +85,9 @@ function RouteComponent() {
       communicationBalance: Math.random(),
     }))
 
-  const contactsPhotoUrl = contacts.map((contact) => {
-    const { data: photoData } = useContactPhoto(contact.id, token)
-    const avatarUrl = photoData ? URL.createObjectURL(photoData) : null
-    return avatarUrl
-  })
-
   const mergedContacts = contacts.map((contact, index) => ({
     contact,
     stats: contactsStats[index],
-    avatar_url: contactsPhotoUrl[index],
   }))
 
   const mockStats: AverageStats = {
@@ -299,15 +292,11 @@ function RouteComponent() {
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  {mergedContact.avatar_url ? (
-                    <img
-                      src={mergedContact.avatar_url}
-                      alt={mergedContact.contact.first_name}
-                      className="w-12 h-12 rounded-full object-cover border-2 border-white shadow"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 bg-gray-200 rounded-full" />
-                  )}
+                  <ContactAvatar
+                    contactId={mergedContact.contact.id}
+                    token={token}
+                    name={mergedContact.contact.first_name}
+                  />
                   <div>
                     <h3 className="font-semibold text-gray-900">
                       {mergedContact.contact.first_name}

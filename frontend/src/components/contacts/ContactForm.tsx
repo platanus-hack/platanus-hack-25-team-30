@@ -36,8 +36,6 @@ export function ContactForm({ onClose, contact, avatar }: ContactFormProps) {
       firstName: contact?.first_name || '',
       lastName: contact?.last_name || '',
       relationshipType: contact?.relationship_type || 'Familia',
-      email: contact?.email || '',
-      phone: contact?.phone || '',
       birthday: contact?.birthday || '',
       personalityTags: contact?.personality_tags || [],
       notes: contact?.notes || '',
@@ -302,91 +300,6 @@ export function ContactForm({ onClose, contact, avatar }: ContactFormProps) {
                     ))}
                   </ShadcnSelect.SelectContent>
                 </ShadcnSelect.Select>
-                {field.state.meta.errors.length > 0 &&
-                  field.state.meta.isTouched && (
-                    <div className="flex items-start gap-2 mt-2 text-red-600">
-                      <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-                      <p className="text-sm">
-                        {field.state.meta.errors.join(', ')}
-                      </p>
-                    </div>
-                  )}
-              </div>
-            )}
-          </form.Field>
-
-          {/* Email */}
-          <form.Field
-            name="email"
-            validators={{
-              onChange: ({ value }) => {
-                if (!value) return undefined // email is optional
-                const result = CreateContactSchema.shape.email.safeParse(value)
-                return result.success
-                  ? undefined
-                  : result.error.issues[0]?.message
-              },
-            }}
-          >
-            {(field) => (
-              <div>
-                <Label
-                  htmlFor="email"
-                  className="text-sm font-medium text-gray-900"
-                >
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  placeholder="miguel.rodriguez@example.com"
-                  className={`mt-2 ${
-                    field.state.meta.errors.length > 0 &&
-                    field.state.meta.isTouched
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                      : ''
-                  }`}
-                />
-                {field.state.meta.errors.length > 0 &&
-                  field.state.meta.isTouched && (
-                    <div className="flex items-start gap-2 mt-2 text-red-600">
-                      <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-                      <p className="text-sm">
-                        {field.state.meta.errors.join(', ')}
-                      </p>
-                    </div>
-                  )}
-              </div>
-            )}
-          </form.Field>
-
-          {/* Phone */}
-          <form.Field name="phone">
-            {(field) => (
-              <div>
-                <Label
-                  htmlFor="phone"
-                  className="text-sm font-medium text-gray-900"
-                >
-                  Teléfono
-                </Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  placeholder="+56 9 1234 5678"
-                  className={`mt-2 ${
-                    field.state.meta.errors.length > 0 &&
-                    field.state.meta.isTouched
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                      : ''
-                  }`}
-                />
                 {field.state.meta.errors.length > 0 &&
                   field.state.meta.isTouched && (
                     <div className="flex items-start gap-2 mt-2 text-red-600">

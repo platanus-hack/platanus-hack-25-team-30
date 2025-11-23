@@ -3,7 +3,7 @@ from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
 
-from app.db import Record, User
+from app.db import ContactStatsCache, Record, User
 from app.dependencies import get_user_token_header
 from app.routers.contacts.records.utils import (
     filter_already_uploaded_records,
@@ -53,6 +53,9 @@ async def upload_whatsapp_chat(
     )
 
     await Record.bulk_create(new_records)
+
+    # Invalidate stats cache for this person
+    await ContactStatsCache.filter(person_id=person_id).delete()
 
     return {"uploaded_records": len(new_records)}
 

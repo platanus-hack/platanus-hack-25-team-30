@@ -9,6 +9,33 @@ class ChatResponse(BaseModel):
     message: str = Field(description="The response message from the person")
 
 
+class HealthScoreAnalysis(BaseModel):
+    """Structured response for relationship health analysis."""
+
+    health_score: int = Field(
+        description="Score from 0-100 representing relationship health. 0 = very poor/neglected, 50 = neutral, 100 = excellent/thriving",
+        ge=0,
+        le=100,
+    )
+    health_status: str = Field(
+        description="Brief status label: 'Excelente', 'Buena', 'Regular', 'Necesita atención', or 'Crítica'"
+    )
+    reasoning: str = Field(
+        description="Brief explanation of why this score was given based on the conversation patterns"
+    )
+
+
+class ConversationTopicAnalysis(BaseModel):
+    """Structured response for last conversation topic analysis."""
+
+    topic: str = Field(
+        description="Main topic or theme of the recent conversation in 2-5 words (in Spanish)"
+    )
+    summary: str = Field(
+        description="Brief one-sentence summary of what was discussed"
+    )
+
+
 def get_instructor_client() -> instructor.Instructor:
     """Create an instructor-wrapped Anthropic client."""
     return instructor.from_anthropic(Anthropic())
@@ -94,5 +121,114 @@ def chat_with_person(
         max_tokens=1024,
         messages=messages,
         response_model=ChatResponse,
+    )
+    return response
+
+
+def analyze_relationship_health(
+    client: instructor.Instructor,
+    first_name: str,
+    relationship_type: str,
+    message_history: list[dict],
+    user_name: str,
+    total_interactions: int,
+    response_time_median_min: float | None,
+    communication_balance: float | None,
+) -> HealthScoreAnalysis:
+    """Analyze the health of a relationship based on conversation history and metrics.
+
+    Args:
+        client: The instructor-wrapped Anthropic client
+        first_name: The contact's first name
+        relationship_type: The type of relationship (e.g., "Familia", "Amigo Cercano")
+        message_history: List of messages with sent_from and message_text
+        user_name: The user's name
+        total_interactions: Total number of messages exchanged
+        response_time_median_min: Median response time in minutes
+        communication_balance: Ratio of sent vs received messages
+    """
+    # Build context from recent messages
+    history_text = ""
+    if message_history:
+        history_text = "\n\nÚltimos mensajes de la conversación:\n"
+        for msg in message_history[-50:]:  # Last 50 messages for analysis
+            sender = msg["sent_from"]
+            history_text += f"- {sender}: {msg['message_text']}\n"
+
+    metrics_text = f"""
+Métricas de la relación:
+- Total de interacciones: {total_interactions}
+- Tiempo de respuesta mediano: {f'{response_time_median_min:.1f} minutos' if response_time_median_min else 'No disponible'}
+- Balance de comunicación (enviados/recibidos): {f'{communication_balance:.2f}' if communication_balance is not None else 'No disponible'}
+"""
+
+    system_prompt = f"""Eres un analista de relaciones personales. Debes evaluar la salud de la relación entre {user_name} y {first_name} ({relationship_type}).
+
+Basándote en el historial de conversaciones y las métricas proporcionadas, evalúa:
+1. Frecuencia y consistencia de la comunicación
+2. Tono y sentimiento de las conversaciones
+3. Balance en la comunicación (quién inicia más, quién responde más)
+4. Calidad de las interacciones
+
+Considera que:
+- Un balance cercano a 0.5 indica comunicación equilibrada
+- Tiempos de respuesta cortos indican mayor engagement
+- Más interacciones generalmente indican una relación más activa
+- El tono positivo y conversaciones significativas son indicadores de buena salud
+
+{metrics_text}
+{history_text}
+
+Proporciona un análisis objetivo y constructivo."""
+
+    messages = [{"role": "user", "content": system_prompt}]
+
+    response = client.chat.completions.create(
+        model="claude-sonnet-4-5-20250929",
+        max_tokens=512,
+        messages=messages,
+        response_model=HealthScoreAnalysis,
+    )
+    return response
+
+
+def analyze_last_conversation_topic(
+    client: instructor.Instructor,
+    first_name: str,
+    message_history: list[dict],
+) -> ConversationTopicAnalysis:
+    """Analyze the topic of the most recent conversation.
+
+    Args:
+        client: The instructor-wrapped Anthropic client
+        first_name: The contact's first name
+        message_history: List of messages with sent_from and message_text
+    """
+    if not message_history:
+        return ConversationTopicAnalysis(
+            topic="Sin conversaciones",
+            summary="No hay mensajes registrados para analizar.",
+        )
+
+    # Get the last 20 messages for topic analysis
+    recent_messages = message_history[-20:]
+    history_text = "\n".join(
+        f"- {msg['sent_from']}: {msg['message_text']}" for msg in recent_messages
+    )
+
+    system_prompt = f"""Analiza los siguientes mensajes recientes de una conversación con {first_name} y determina el tema principal de la última conversación.
+
+Mensajes recientes:
+{history_text}
+
+Identifica el tema principal de forma concisa (2-5 palabras) y proporciona un breve resumen de lo que se discutió."""
+
+    messages = [{"role": "user", "content": system_prompt}]
+
+    response = client.chat.completions.create(
+        model="claude-sonnet-4-5-20250929",
+        max_tokens=256,
+        messages=messages,
+        response_model=ConversationTopicAnalysis,
     )
     return response

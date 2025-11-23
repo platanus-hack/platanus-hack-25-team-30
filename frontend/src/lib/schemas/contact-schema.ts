@@ -8,11 +8,6 @@ export const CreateContactSchema = z.object({
     ['Familia', 'Amigo Cercano', 'Amigo', 'Colega', 'Romantico', 'Conocido'],
     { message: 'Selecciona un tipo de relación' },
   ),
-  email: z
-    .string()
-    .transform((val) => val === '' ? undefined : val)
-    .pipe(z.email({ message: 'Email inválido' }).optional()),
-  phone: z.string().optional(),
   birthday: z.iso.date({ message: 'Fecha de cumpleaños inválida' }),
   personalityTags: z
     .array(z.string())
