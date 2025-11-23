@@ -184,12 +184,8 @@ function RouteComponent() {
   }
 
   return (
-    <div className="w-full h-full bg-(--app-secondary) p-8 overflow-auto">
+    <div className="w-full h-full bg-(--app-secondary) p-16 overflow-auto">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Talk2Me</h1>
-        </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

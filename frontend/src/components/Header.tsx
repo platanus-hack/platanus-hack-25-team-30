@@ -41,9 +41,9 @@ export default function Header() {
           >
             <Menu size={24} />
           </button>
-          <h1 className="ml-4 text-xl font-semibold text-gray-900">
+          <Link to="/dashboard" className="ml-4 text-xl font-semibold text-gray-900">
             DeepBonds
-          </h1>
+          </Link>
         </div>
 
         {/* User Options */}
