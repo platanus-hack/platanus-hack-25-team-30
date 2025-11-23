@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const CreateContactSchema = z.object({
-  avatar: z.string().optional(),
+  avatar: z.instanceof(File).optional(),
   firstName: z.string().min(1, { message: 'El nombre es requerido' }),
   lastName: z.string().min(1, { message: 'El apellido es requerido' }),
   relationshipType: z.enum(

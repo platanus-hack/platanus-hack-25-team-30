@@ -5,14 +5,29 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 export const contactsApi = {
   async create(payload: CreateContactPayload): Promise<Contact> {
-    console.log('Creating contact with payload:', payload)
     const response = await fetch(`${API_BASE_URL}/contacts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'user-token': 'test' },
       body: JSON.stringify(payload),
     })
-    console.log('Response status:', response.status)
+
     if (!response.ok) throw new Error('Failed to create contact')
+
+    const data = await response.json()
+    return getContact(data)
+  },
+
+  async assignPhoto(id: string, avatarFile: File): Promise<Contact> {
+    const formData = new FormData()
+    formData.append('person_photo', avatarFile)
+
+    const response = await fetch(`${API_BASE_URL}/contacts/${id}/photo`, {
+      method: 'POST',
+      headers: { 'user-token': 'test' },
+      body: formData,
+    })
+
+    if (!response.ok) throw new Error('Failed to assign photo to contact')
 
     const data = await response.json()
     return getContact(data)
@@ -26,6 +41,19 @@ export const contactsApi = {
 
     const data = await response.json()
     return data.map(getContact)
+  },
+
+  async getPhoto(contactId: string): Promise<Blob> {
+    const response = await fetch(
+      `${API_BASE_URL}/contacts/${contactId}/photo`,
+      {
+        headers: { 'user-token': 'test' },
+      },
+    )
+
+    if (!response.ok) throw new Error('Failed to fetch contact photo')
+
+    return response.blob()
   },
 
   async getById(id: string): Promise<Contact> {

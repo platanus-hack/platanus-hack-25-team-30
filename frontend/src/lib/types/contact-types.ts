@@ -2,7 +2,7 @@ export interface Contact {
   id: string
   firstName: string
   lastName: string
-  avatar: string
+  avatar?: File
   category: string
   email: string
   phone: string

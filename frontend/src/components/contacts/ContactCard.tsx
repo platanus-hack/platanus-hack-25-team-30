@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { useContactPhoto } from '@/hooks/contact-photo-hook'
 
 interface ContactCardProps {
   contact: Contact
@@ -34,6 +35,9 @@ export function ContactCard({ contact }: ContactCardProps) {
     return date.toLocaleDateString('es-ES', options)
   }
 
+  const { data: photoData } = useContactPhoto(contact.id)
+  const avatarUrl = photoData ? URL.createObjectURL(photoData) : null
+
   return (
     <Link to="/contacts/$contactId" params={{ contactId: contact.id }}>
       <Card className="relative bg-white hover:shadow-md transition-shadow cursor-pointer">
@@ -42,7 +46,7 @@ export function ContactCard({ contact }: ContactCardProps) {
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
               <Avatar className="h-12 w-12">
-                <AvatarImage src={contact.avatar} alt={fullName} />
+                <AvatarImage src={avatarUrl || undefined} alt={fullName} />
                 <AvatarFallback className="bg-gray-200 text-gray-700">
                   {getInitials(contact.firstName, contact.lastName)}
                 </AvatarFallback>

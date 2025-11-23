@@ -33,7 +33,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { CardStack } from '@/components/CardStack'
 import { contactsData } from '@/data/contact-data'
-import { authStore } from '@/lib/stores/auth-store'
+import { authStore } from '@/lib/schemas/stores/auth-store'
 
 export const Route = createFileRoute('/dashboard/')({
   component: RouteComponent,
