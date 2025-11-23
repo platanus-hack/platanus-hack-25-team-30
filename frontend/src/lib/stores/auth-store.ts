@@ -1,6 +1,7 @@
 import { Store } from '@tanstack/react-store'
 import { z } from 'zod'
 import { API_BASE_URL } from '@/integrations/api/load-env'
+import { hashPassword } from '@/lib/utils/hash'
 
 const STORAGE_KEY = 'app_auth_state'
 
@@ -62,12 +63,13 @@ export const authActions = {
     password: string,
   ): Promise<{ success: boolean; error?: string }> {
     try {
+      const hashedPassword = await hashPassword(password)
       const response = await fetch(`${API_BASE_URL}/users/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username: username, password }),
+        body: JSON.stringify({ username: username, password: hashedPassword }),
       })
 
       const data = await response.json()
@@ -102,12 +104,13 @@ export const authActions = {
     password: string,
   ): Promise<{ success: boolean; error?: string }> {
     try {
+      const hashedPassword = await hashPassword(password)
       const response = await fetch(`${API_BASE_URL}/users/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username: username, password }),
+        body: JSON.stringify({ username: username, password: hashedPassword }),
       })
 
       const data = await response.json()
