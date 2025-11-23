@@ -2,19 +2,13 @@ import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   ArrowLeft,
   BarChart3,
-  Bell,
-  Calendar,
   Clock,
-  Edit,
-  Gift,
-  List,
+  Loader2,
   MessageCircle,
   Sparkles,
-  Trash2,
   TrendingUp,
   Wifi,
   WifiOff,
-  Loader2,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from '@tanstack/react-store'
@@ -23,7 +17,6 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
-import { ContactForm } from '@/components/contacts/ContactForm'
 import { useContacts } from '@/hooks/contact-hook'
 import { useContactPhoto } from '@/hooks/contact-photo-hook'
 import { useContactChats } from '@/hooks/contact-chats-hook'
@@ -40,7 +33,6 @@ function ContactShowComponent() {
   const state = useStore(authStore)
   if (!state) return null
   const { token } = state
-  const [showEditForm, setShowEditForm] = useState(false)
   const { contactId } = Route.useParams()
   const contactIdNum = parseInt(contactId, 10)
   const { contacts } = useContacts(token)

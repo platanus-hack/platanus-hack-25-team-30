@@ -3,7 +3,6 @@ import { useStore } from '@tanstack/react-store'
 
 import { useState } from 'react'
 import {
-  BarChart3,
   LayoutDashboard,
   LogOut,
   Menu,

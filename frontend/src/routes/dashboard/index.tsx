@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { useStore } from '@tanstack/react-store'
 import { useMemo, useState } from 'react'
 import {
@@ -13,7 +13,6 @@ import {
 } from 'lucide-react'
 import type { Stats } from '@/lib/types/stats-types'
 import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
@@ -236,12 +235,6 @@ function RouteComponent() {
     if (score >= 80) return 'text-green-600'
     if (score >= 50) return 'text-orange-500'
     return 'text-red-500'
-  }
-
-  const getHealthBorderColor = (score: number) => {
-    if (score >= 80) return 'border-green-600'
-    if (score >= 50) return 'border-orange-500'
-    return 'border-red-500'
   }
 
   return (

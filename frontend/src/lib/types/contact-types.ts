@@ -33,8 +33,6 @@ export interface CreateContactPayload {
   first_name: string
   last_name: string
   relationship_type: string
-  email: string
-  phone: string
   birthday: string
   personality_tags: Array<string>
   notes: string

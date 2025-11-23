@@ -15,7 +15,7 @@ export const Route = createFileRoute('/profile/')({
 function RouteComponent() {
   const state = useStore(authStore)
   if (!state) return null
-  const { user, token } = state
+  const { user } = state
 
   const navigate = useNavigate()
   const [imagePreview, setImagePreview] = React.useState<string>('')

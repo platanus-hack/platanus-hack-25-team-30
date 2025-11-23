@@ -8,8 +8,6 @@ export function createContactPayload(
     first_name: data.firstName,
     last_name: data.lastName,
     relationship_type: data.relationshipType,
-    email: data.email || '',
-    phone: data.phone || '',
     birthday: data.birthday || '',
     personality_tags: data.personalityTags,
     notes: data.notes || '',
@@ -29,12 +27,6 @@ export function updateContactPayload(
   }
   if (data.relationshipType !== undefined) {
     payload.relationship_type = data.relationshipType
-  }
-  if (data.email !== undefined) {
-    payload.email = data.email
-  }
-  if (data.phone !== undefined) {
-    payload.phone = data.phone
   }
   if (data.birthday !== undefined) {
     payload.birthday = data.birthday
