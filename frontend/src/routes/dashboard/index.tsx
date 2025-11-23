@@ -101,15 +101,15 @@ function ContactAvatarWithPhoto({
 
 function RouteComponent() {
   const state = useStore(authStore)
-  if (!state) return null
-  const { token } = state
-
+  const token = state?.token ?? ''
   const [sortBy, setSortBy] = useState<string>('')
   const { contacts } = useContacts(token)
   const { statsMap, isLoading: isLoadingStats } = useAllContactsStats(
     contacts,
     token,
   )
+
+  if (!state) return null
 
   const mergedContacts = contacts.map((contact) => ({
     contact,

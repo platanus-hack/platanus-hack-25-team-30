@@ -14,15 +14,14 @@ export const Route = createFileRoute('/profile/')({
 
 function RouteComponent() {
   const state = useStore(authStore)
-  if (!state) return null
-  const { user } = state
-
   const navigate = useNavigate()
   const [imagePreview, setImagePreview] = React.useState<string>('')
-  const [name, setName] = React.useState(user.username)
+  const [name, setName] = React.useState(state?.user.username ?? '')
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
   const [image, setImage] = React.useState('')
+
+  if (!state) return null
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

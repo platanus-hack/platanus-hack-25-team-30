@@ -19,8 +19,7 @@ interface ContactFormProps {
 
 export function ContactForm({ onClose, contact, avatar }: ContactFormProps) {
   const state = useStore(authStore)
-  if (!state) return null
-  const { token } = state
+  const token = state?.token ?? ''
   const { createContact, updateContact, isCreating, isUpdating } =
     useContacts(token)
 
@@ -52,7 +51,7 @@ export function ContactForm({ onClose, contact, avatar }: ContactFormProps) {
         avatar: value.avatar || selectedFile,
       }
 
-      if (isEditMode) {
+      if (isEditMode && contact) {
         updateContact(
           {
             id: contact.id,
@@ -73,6 +72,8 @@ export function ContactForm({ onClose, contact, avatar }: ContactFormProps) {
       }
     },
   })
+
+  if (!state) return null
 
   const relationshipTypes = [
     { label: 'Familia', value: 'Familia' },

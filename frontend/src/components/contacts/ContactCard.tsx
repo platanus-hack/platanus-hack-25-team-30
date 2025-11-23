@@ -24,14 +24,16 @@ export function ContactCard({
   contact,
 }: ContactCardProps) {
   const authState = useStore(authStore)
+  const token = authState?.token ?? ''
+
+  const { contactStats } = useContactStats(contact.id, token)
+  const { data: photoData } = useContactPhoto(contact.id, token)
+
   if (!authState) return null
-  const { token } = authState
 
   const getInitials = (firstName: string, lastName: string) => {
     return `${firstName[0]}${lastName[0]}`.toUpperCase()
   }
-
-  const { contactStats } = useContactStats(contact.id, token)
 
   const fullName = `${contact.first_name} ${contact.last_name}`
 
@@ -44,7 +46,6 @@ export function ContactCard({
     return date.toLocaleDateString('es-ES', options)
   }
 
-  const { data: photoData } = useContactPhoto(contact.id, token)
   const avatarUrl = photoData ? URL.createObjectURL(photoData) : null
 
   return (

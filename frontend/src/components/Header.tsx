@@ -22,12 +22,12 @@ import { Card } from '@/components/ui/card'
 
 export default function Header() {
   const state = useStore(authStore)
-  if (!state) return null
-  const { user } = state
-
   const [isOpen, setIsOpen] = useState(false)
   const [isUserOpen, setIsUserOpen] = useState(false)
   const navigate = useNavigate()
+
+  if (!state) return null
+  const { user } = state
 
   return (
     <>

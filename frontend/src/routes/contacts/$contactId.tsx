@@ -31,10 +31,9 @@ export const Route = createFileRoute('/contacts/$contactId')({
 
 function ContactShowComponent() {
   const state = useStore(authStore)
-  if (!state) return null
-  const { token } = state
   const { contactId } = Route.useParams()
   const contactIdNum = parseInt(contactId, 10)
+  const token = state?.token ?? ''
   const { contacts } = useContacts(token)
   const { contactChats } = useContactChats(contactIdNum, token)
   const { contactStats } = useContactStats(contactIdNum, token)
@@ -64,13 +63,11 @@ function ContactShowComponent() {
   const [input, setInput] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   useEffect(() => {
-    scrollToBottom()
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  if (!state) return null
 
   const handleSend = () => {
     if (!input.trim() || connectionStatus !== 'connected') return

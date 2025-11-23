@@ -8,12 +8,13 @@ import { authStore } from '@/lib/stores/auth-store'
 
 export function TelegramImport() {
   const state = useStore(authStore)
-  if (!state) return null
-  const { token } = state
+  const token = state?.token ?? ''
   const [selectedContactId, setSelectedContactId] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const { contacts, isLoading: isLoadingContacts } = useContacts(token)
   const importMutation = useImportTelegram()
+
+  if (!state) return null
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
