@@ -238,7 +238,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="w-full h-full bg-(--app-secondary) p-16 overflow-auto">
+    <div className="min-h-screen bg-(--app-secondary) p-16 overflow-auto">
       <div className="max-w-7xl mx-auto">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
