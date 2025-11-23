@@ -229,7 +229,7 @@ function ContactShowComponent() {
                 >
                   <span
                     className={`text-lg font-bold ${getScoreColor(contactStats?.health_score ?? 0)}`}
-                  > 
+                  >
                     {contactStats?.health_score}
                   </span>
                 </div>
@@ -305,7 +305,9 @@ function ContactShowComponent() {
               <Card className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Puntaje de relación</p>
+                    <p className="text-sm text-gray-600 mb-1">
+                      Puntaje de relación
+                    </p>
                     <p
                       className={`text-3xl font-bold ${getScoreColor(contactStats?.health_score ?? 0)}`}
                     >
@@ -344,7 +346,9 @@ function ContactShowComponent() {
               <Card className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Último contacto</p>
+                    <p className="text-sm text-gray-600 mb-1">
+                      Último contacto
+                    </p>
                     <p className="text-xl font-bold text-gray-900">
                       {formatDate(contactStats?.last_interaction_date)}
                     </p>
@@ -377,7 +381,13 @@ function ContactShowComponent() {
                     variant="outline"
                     className="bg-green-50 text-green-700"
                   >
-                    {formatResponseTime(Number((contactStats?.response_time_median_min ?? 0).toFixed(0)))}
+                    {formatResponseTime(
+                      Number(
+                        (contactStats?.response_time_median_min ?? 0).toFixed(
+                          0,
+                        ),
+                      ),
+                    )}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-gray-100">
@@ -518,7 +528,6 @@ function ContactShowComponent() {
               </div>
             </Card>
           </TabsContent>
-
         </Tabs>
       </div>
     </div>
