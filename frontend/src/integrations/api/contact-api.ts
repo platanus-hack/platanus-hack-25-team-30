@@ -69,7 +69,7 @@ export const contactsApi = {
   },
 
   async update(
-    id: string,
+    id: number,
     payload: Partial<CreateContactPayload>,
   ): Promise<Contact> {
     const response = await fetch(`${API_BASE_URL}/contacts/${id}`, {

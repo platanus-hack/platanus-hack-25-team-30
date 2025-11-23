@@ -29,7 +29,7 @@ export function useContacts() {
   })
 
   const updateMutation = useMutation({
-    mutationFn: (data: { id: string; updates: Partial<CreateContactData> }) => {
+    mutationFn: (data: { id: number; updates: Partial<CreateContactData> }) => {
       const payload = updateContactPayload(data.updates)
       return contactsApi.update(data.id, payload)
     },
