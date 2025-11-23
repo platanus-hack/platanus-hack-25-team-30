@@ -41,7 +41,10 @@ export default function Header() {
           >
             <Menu size={24} />
           </button>
-          <Link to="/dashboard" className="ml-4 text-xl font-semibold text-gray-900">
+          <Link
+            to="/dashboard"
+            className="ml-4 text-xl font-semibold text-gray-900"
+          >
             DeepBonds
           </Link>
         </div>
@@ -63,17 +66,17 @@ export default function Header() {
             </PopoverTrigger>
             <PopoverContent align="end" className="w-48 p-2">
               <div className="flex flex-col gap-1">
-                <Button
-                  variant="ghost"
-                  className="justify-start gap-2 text-sm font-normal"
-                  onClick={() => {
-                    setIsUserOpen(false)
-                    navigate({ to: '/profile' })
-                  }}
-                >
-                  <UserIcon className="h-4 w-4" />
-                  Editar Perfil
-                </Button>
+                {/* <Button */}
+                {/*   variant="ghost" */}
+                {/*   className="justify-start gap-2 text-sm font-normal" */}
+                {/*   onClick={() => { */}
+                {/*     setIsUserOpen(false) */}
+                {/*     navigate({ to: '/profile' }) */}
+                {/*   }} */}
+                {/* > */}
+                {/*   <UserIcon className="h-4 w-4" /> */}
+                {/*   Editar Perfil */}
+                {/* </Button> */}
                 <Button
                   variant="ghost"
                   className="justify-start gap-2 text-sm font-normal text-red-600 hover:text-red-700 hover:bg-red-50"
