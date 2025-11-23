@@ -2,14 +2,14 @@ import asyncio
 from datetime import date
 from typing import Annotated, List, Literal, Optional
 
-from fastapi import APIRouter, Depends, File, HTTPException, Response
+from fastapi import Depends, File, HTTPException, Response
 from pydantic import BaseModel, Field
 
 from app.db import Person as PersonModel
 from app.db import User
 from app.dependencies import get_user_token_header
 
-from .records.get import router as records_router
+from .main import router
 
 relationship_types = (
     "Familia",
@@ -42,10 +42,6 @@ class Person(BaseModel):
 
 class PersonResponse(Person):
     id: int
-
-
-router = APIRouter(prefix="/contacts", tags=["contacts"])
-router.include_router(records_router, tags=[])
 
 
 @router.post("", response_model=PersonResponse)
