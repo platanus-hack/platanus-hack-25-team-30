@@ -32,13 +32,20 @@ import {
 
 import { Badge } from '@/components/ui/badge'
 import { CardStack } from '@/components/CardStack'
-import { contactsData } from '@/data/contact-data'
 import { authStore } from '@/lib/stores/auth-store'
 import { useContacts } from '@/hooks/contact-hook'
+import { useContactPhoto } from '@/hooks/contact-photo-hook'
 
 export const Route = createFileRoute('/dashboard/')({
   component: RouteComponent,
 })
+
+interface AverageStats {
+  totalRelationships: number
+  averageHealthScore: number
+  interactionCountMonthly: number
+  needAttentionCount: number
+}
 
 interface ContactStats {
   score: number
@@ -48,17 +55,67 @@ interface ContactStats {
   streak: number
   responseTime: string
   communicationBalance: string
+  healthStatus: string
 }
+
+interface MockTipOrInsight {
+  type: 'tip' | 'stat' | 'globalStat' | 'reminder'
+  message: string
+}
+
+// Get keys for sorting
+type SortKeys = keyof ContactStats
+// Get sort keys from ContactStats
+const sortKeys: Array<SortKeys> = [
+  'score',
+  'totalInteractions',
+  'lastContact',
+  'lastConversation',
+  'streak',
+  'responseTime',
+  'communicationBalance',
+]
 
 function RouteComponent() {
   const state = useStore(authStore)
   if (!state) return null
   const { user, token } = state
 
-  const [sortBy, setSortBy] = useState('')
+  const [sortBy, setSortBy] = useState<string>('')
   const { contacts } = useContacts()
+  const contactsStats: Array<ContactStats> = Array(contacts.length)
+    .fill(null)
+    .map(() => ({
+      score: Math.floor(Math.random() * 100),
+      totalInteractions: Math.floor(Math.random() * 200),
+      lastContact: `${Math.floor(Math.random() * 10) + 1} days ago`,
+      lastConversation: 'Discussed project updates',
+      streak: Math.floor(Math.random() * 20),
+      responseTime: `${Math.floor(Math.random() * 48) + 1} hrs`,
+      communicationBalance: Math.random() > 0.5 ? 'Balanced' : 'Unbalanced',
+      healthStatus: 'Bad',
+    }))
 
-  const mockStats = {
+  const contactsPhotoUrl = contacts.map((contact) => {
+    const { data: photoData } = useContactPhoto(contact.id)
+    const avatarUrl = photoData ? URL.createObjectURL(photoData) : null
+    return avatarUrl
+  })
+
+  // const contactsPhoto = Array(contacts.length)
+  //   .fill(null)
+  //   .map((_, index) => {
+  //     const { data: photoData } = useContactPhoto(contact.id)
+  //     const avatarUrl = photoData ? URL.createObjectURL(photoData) : null
+  //   })
+
+  const mergedContacts = contacts.map((contact, index) => ({
+    contact,
+    stats: contactsStats[index],
+    avatar_url: contactsPhotoUrl[index],
+  }))
+
+  const mockStats: AverageStats = {
     totalRelationships: 24,
     averageHealthScore: 78,
     interactionCountMonthly: 47,
@@ -72,10 +129,7 @@ function RouteComponent() {
     { label: 'Recent Contact', value: 'lastContact' },
   ]
 
-  const mockTips: Array<{
-    type: 'tip' | 'stat' | 'globalStat' | 'reminder'
-    message: string
-  }> = [
+  const mockTips: Array<MockTipOrInsight> = [
     {
       type: 'tip',
       message:
@@ -117,12 +171,17 @@ function RouteComponent() {
     },
   ]
 
-  const sortedContacts = useMemo(() => {
-    if (!sortBy) return contacts
-    return [...mockUsers].sort((a, b) => {
-      const key = sortBy as keyof (typeof mockUsers)[0]
-      const aValue = a[key]
-      const bValue = b[key]
+  const sortedMergedContacts = useMemo(() => {
+    if (!sortBy) return mergedContacts
+    return [...mergedContacts].sort((a, b) => {
+      const key = sortBy
+      // @ts-ignore fine
+      if (!sortKeys.includes(key)) {
+        return 0
+      }
+      const checkedKey = key as SortKeys
+      const aValue = a.stats[checkedKey]
+      const bValue = b.stats[checkedKey]
       if (typeof aValue === 'number' && typeof bValue === 'number') {
         return bValue - aValue
       }
@@ -244,9 +303,9 @@ function RouteComponent() {
               <SelectValue placeholder="Relationship Score" />
             </SelectTrigger>
             <SelectContent>
-              {mockSortStats.map((stat) => (
-                <SelectItem key={stat.value} value={stat.value}>
-                  {stat.label}
+              {sortKeys.map((key) => (
+                <SelectItem key={key} value={key}>
+                  {key}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -255,30 +314,32 @@ function RouteComponent() {
 
         {/* User Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sortedContacts.map((user) => (
+          {sortedMergedContacts.map((mergedContact) => (
             <Card
-              key={user.id}
+              key={mergedContact.contact.id}
               className="p-6 bg-white hover:shadow-lg transition-shadow"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  {user.avatar ? (
+                  {mergedContact.avatar_url ? (
                     <img
-                      src={user.avatar}
-                      alt={user.name}
+                      src={mergedContact.avatar_url}
+                      alt={mergedContact.contact.first_name}
                       className="w-12 h-12 rounded-full object-cover border-2 border-white shadow"
                     />
                   ) : (
                     <div className="w-12 h-12 bg-gray-200 rounded-full" />
                   )}
                   <div>
-                    <h3 className="font-semibold text-gray-900">{user.name}</h3>
+                    <h3 className="font-semibold text-gray-900">
+                      {mergedContact.contact.first_name}
+                    </h3>
                     <p className="text-xs text-gray-500">
-                      {user.interactions} interactions
+                      {mergedContact.stats.totalInteractions} interactions
                     </p>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {user.tags &&
-                        user.tags.map((tag: string, i: number) => (
+                      {mergedContact.contact.personality_tags.map(
+                        (tag: string, i: number) => (
                           <Badge
                             key={i}
                             variant="outline"
@@ -286,7 +347,8 @@ function RouteComponent() {
                           >
                             {tag}
                           </Badge>
-                        ))}
+                        ),
+                      )}
                     </div>
                   </div>
                 </div>
@@ -305,7 +367,9 @@ function RouteComponent() {
                       <Button
                         variant="ghost"
                         className="justify-start gap-2 text-sm font-normal"
-                        onClick={() => console.log('Show', user.name)}
+                        onClick={() =>
+                          console.log('Show', mergedContact.contact.first_name)
+                        }
                       >
                         <Eye className="h-4 w-4" />
                         Show
@@ -313,7 +377,9 @@ function RouteComponent() {
                       <Button
                         variant="ghost"
                         className="justify-start gap-2 text-sm font-normal"
-                        onClick={() => console.log('Edit', user.name)}
+                        onClick={() =>
+                          console.log('Edit', mergedContact.contact.first_name)
+                        }
                       >
                         <Pencil className="h-4 w-4" />
                         Edit
@@ -321,7 +387,12 @@ function RouteComponent() {
                       <Button
                         variant="ghost"
                         className="justify-start gap-2 text-sm font-normal text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => console.log('Delete', user.name)}
+                        onClick={() =>
+                          console.log(
+                            'Delete',
+                            mergedContact.contact.first_name,
+                          )
+                        }
                       >
                         <Trash2 className="h-4 w-4" />
                         Delete
@@ -348,26 +419,26 @@ function RouteComponent() {
                       cy="48"
                       r="40"
                       stroke={
-                        user.healthScore >= 85
+                        mergedContact.stats.score >= 85
                           ? '#16a34a'
-                          : user.healthScore >= 60
+                          : mergedContact.stats.score >= 60
                             ? '#f97316'
                             : '#dc2626'
                       }
                       strokeWidth="8"
                       fill="none"
-                      strokeDasharray={`${(user.healthScore / 100) * 251.2} 251.2`}
+                      strokeDasharray={`${(mergedContact.stats.score / 100) * 251.2} 251.2`}
                       strokeLinecap="round"
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span
-                      className={`text-lg font-bold ${getHealthColor(user.healthScore)}`}
+                      className={`text-lg font-bold ${getHealthColor(mergedContact.stats.score)}`}
                     >
-                      {user.healthScore}/100
+                      {mergedContact.stats.score}/100
                     </span>
                     <span className="text-xs text-gray-600">
-                      {user.healthStatus}
+                      {mergedContact.stats.healthStatus}
                     </span>
                   </div>
                 </div>
@@ -376,13 +447,15 @@ function RouteComponent() {
                 <div className="flex-1 space-y-2 text-sm">
                   <div>
                     <p className="text-gray-600 font-medium">Last Contact</p>
-                    <p className="text-gray-900">{user.lastContact}</p>
+                    <p className="text-gray-900">
+                      {mergedContact.stats.lastContact}
+                    </p>
                     {/* Badge para el source (usar color e icono segun app de mockApps) */}
                     <Badge
                       className="mt-1 px-2 py-1 text-xs font-medium"
                       variant="secondary"
                     >
-                      {user.source}
+                      {'whatsapp'}
                     </Badge>
                   </div>
                 </div>
@@ -396,7 +469,7 @@ function RouteComponent() {
                     <span className="text-gray-600">Response Time</span>
                   </div>
                   <span className="text-sm font-medium text-gray-900">
-                    {user.responseTime}
+                    {mergedContact.stats.responseTime}
                   </span>
                 </div>
                 <div className="flex items-center gap-6">
@@ -405,7 +478,9 @@ function RouteComponent() {
                     <span className="text-gray-600">Streak</span>
                   </div>
                   <span className="text-sm font-medium text-gray-900">
-                    {user.streak ? `${user.streak} weeks` : 'None'}
+                    {mergedContact.stats.streak
+                      ? `${mergedContact.stats.streak} weeks`
+                      : 'None'}
                   </span>
                 </div>
               </div>
@@ -417,9 +492,9 @@ function RouteComponent() {
                 </p>
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-medium text-gray-900">
-                    {user.communicationBalance}
+                    {mergedContact.stats.communicationBalance}
                   </p>
-                  {user.communicationBalance === 'Balanced' ? (
+                  {mergedContact.stats.communicationBalance === 'Balanced' ? (
                     <ArrowUpRight className="w-4 h-4 text-green-600" />
                   ) : (
                     <ArrowDownRight className="w-4 h-4 text-orange-500" />
@@ -428,7 +503,7 @@ function RouteComponent() {
               </div>
 
               {/* Warning if needed */}
-              {user.healthScore < 65 && (
+              {mergedContact.stats.score < 65 && (
                 <div className="mt-3 p-2 bg-orange-50 rounded-md flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-orange-600" />
                   <span className="text-xs text-orange-800 font-medium">

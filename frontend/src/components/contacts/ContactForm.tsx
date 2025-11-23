@@ -1,7 +1,7 @@
 import { useForm } from '@tanstack/react-form'
 import { AlertCircle, Upload, X } from 'lucide-react'
-import { useState } from 'react';
-import type { Contact } from '@/lib/types/contact-types';
+import { useState } from 'react'
+import type { Contact } from '@/lib/types/contact-types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,7 +9,6 @@ import { Textarea } from '@/components/ui/textarea'
 import * as ShadcnSelect from '@/components/ui/select'
 import { CreateContactSchema } from '@/lib/schemas/contact-schema'
 import { useContacts } from '@/hooks/contact-hook'
-
 
 interface ContactFormProps {
   onClose: () => void
@@ -22,7 +21,7 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
   const isEditMode = !!contact
 
   const [selectedFile, setSelectedFile] = useState<File | undefined>(
-    contact?.avatar || undefined
+    contact?.avatar || undefined,
   )
 
   const [tagInputValue, setTagInputValue] = useState('')
@@ -142,7 +141,7 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                     <span className="text-sm font-medium text-gray-700">
                       Selecciona una imagen
                     </span>
-                      <Input
+                    <Input
                       id="avatar"
                       type="file"
                       accept="image/*"
@@ -157,14 +156,15 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                     />
                   </label>
                 </div>
-                {field.state.meta.errors.length > 0 && field.state.meta.isTouched && (
-                  <div className="flex items-start gap-2 mt-3 text-red-600">
-                    <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-                    <p className="text-sm font-medium">
-                      {field.state.meta.errors.join(', ')}
-                    </p>
-                  </div>
-                )}
+                {field.state.meta.errors.length > 0 &&
+                  field.state.meta.isTouched && (
+                    <div className="flex items-start gap-2 mt-3 text-red-600">
+                      <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                      <p className="text-sm font-medium">
+                        {field.state.meta.errors.join(', ')}
+                      </p>
+                    </div>
+                  )}
               </div>
             )}
           </form.Field>
@@ -279,7 +279,8 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                 >
                   <ShadcnSelect.SelectTrigger
                     className={`mt-2 ${
-                      field.state.meta.errors.length > 0 && field.state.meta.isTouched
+                      field.state.meta.errors.length > 0 &&
+                      field.state.meta.isTouched
                         ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
                         : ''
                     }`}
@@ -297,14 +298,15 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                     ))}
                   </ShadcnSelect.SelectContent>
                 </ShadcnSelect.Select>
-                {field.state.meta.errors.length > 0 && field.state.meta.isTouched && (
-                  <div className="flex items-start gap-2 mt-2 text-red-600">
-                    <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-                    <p className="text-sm">
-                      {field.state.meta.errors.join(', ')}
-                    </p>
-                  </div>
-                )}
+                {field.state.meta.errors.length > 0 &&
+                  field.state.meta.isTouched && (
+                    <div className="flex items-start gap-2 mt-2 text-red-600">
+                      <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                      <p className="text-sm">
+                        {field.state.meta.errors.join(', ')}
+                      </p>
+                    </div>
+                  )}
               </div>
             )}
           </form.Field>
@@ -395,7 +397,7 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
           </form.Field>
 
           {/* Birthday */}
-          <form.Field 
+          <form.Field
             name="birthday"
             validators={{
               onChange: ({ value }) => {

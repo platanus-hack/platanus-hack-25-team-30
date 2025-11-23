@@ -1,8 +1,7 @@
 import { z } from 'zod'
 
-export const Contact = z.object({
+export const ContactSchema = z.object({
   id: z.number(),
-  avatar: z.instanceof(File).optional(),
   first_name: z.string(),
   last_name: z.string(),
   relationship_type: z.string(),
@@ -13,7 +12,7 @@ export const Contact = z.object({
   notes: z.string(),
 })
 
-export type Contact = z.infer<typeof Contact>
+export type Contact = z.infer<typeof ContactSchema>
 
 // export interface Contact {
 //   id: string

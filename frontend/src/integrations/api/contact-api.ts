@@ -1,4 +1,5 @@
 import type { Contact, CreateContactPayload } from '@/lib/types/contact-types'
+import { ContactSchema } from '@/lib/types/contact-types'
 import { getContact } from '@/lib/mappers/contact-mappers'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -17,7 +18,7 @@ export const contactsApi = {
     return getContact(data)
   },
 
-  async assignPhoto(id: string, avatarFile: File): Promise<Contact> {
+  async assignPhoto(id: number, avatarFile: File): Promise<Contact> {
     const formData = new FormData()
     formData.append('person_photo', avatarFile)
 
@@ -40,10 +41,13 @@ export const contactsApi = {
     if (!response.ok) throw new Error('Failed to fetch contacts')
 
     const data = await response.json()
-    return data.map(getContact)
+
+    const parsedContacts: Array<Contact> = ContactSchema.array().parse(data)
+
+    return parsedContacts
   },
 
-  async getPhoto(contactId: string): Promise<Blob> {
+  async getPhoto(contactId: number): Promise<Blob> {
     const response = await fetch(
       `${API_BASE_URL}/contacts/${contactId}/photo`,
       {
