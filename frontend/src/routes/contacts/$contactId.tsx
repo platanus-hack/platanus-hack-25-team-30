@@ -24,6 +24,7 @@ import { ContactForm } from '@/components/contacts/ContactForm'
 import { useContacts } from '@/hooks/contact-hook'
 import { useContactPhoto } from '@/hooks/contact-photo-hook'
 import { useContactChats } from '@/hooks/contact-chats-hook'
+import { useContactStats } from '@/hooks/contact-stats-hook'
 import { authStore } from '@/lib/stores/auth-store'
 
 export const Route = createFileRoute('/contacts/$contactId')({
@@ -44,8 +45,9 @@ function ContactShowComponent() {
   const [showEditForm, setShowEditForm] = useState(false)
   const { contactId } = Route.useParams()
   const contactIdNum = parseInt(contactId, 10)
-  const { contactChats } = useContactChats(contactIdNum)
   const { contacts } = useContacts(token)
+  const { contactChats } = useContactChats(contactIdNum, token)
+  const { contactStats } = useContactStats(contactIdNum, token)
   const navigate = useNavigate()
 
   const sortedChats = [...contactChats].sort(
@@ -56,12 +58,6 @@ function ContactShowComponent() {
 
   const { data: photoData } = useContactPhoto(contactIdNum, token)
   const avatarUrl = photoData ? URL.createObjectURL(photoData) : null
-  const stats: PersonStats = {
-    score: 5,
-    totalInteractions: 42,
-    lastContact: '2 days ago',
-    lastConversation: 'Discussed weekend plans',
-  }
 
   const mockInitialMessage = `Oye cabro wn, donde has estado? En lo prado???!!! Andate inmediatamente de esta casa porfa.`
   const mockAnswers = [
@@ -171,7 +167,8 @@ function ContactShowComponent() {
     }
   }
 
-  const formatMessageTime = (isoString: string) => {
+  const formatMessageTime = (isoString?: string) => {
+    if (!isoString) return 'Sin interacciones'
     const date = new Date(isoString)
     const time = date.toLocaleTimeString('es-ES', {
       hour: '2-digit',
@@ -188,6 +185,19 @@ function ContactShowComponent() {
       .join('-')
 
     return `${time} ${dateStr}`
+  }
+
+  const formatResponseTime = (minutes: number) => {
+    if (minutes < 60) return `< ${minutes} min`
+    const hours = Math.floor(minutes / 60)
+    return `${hours} hr${hours > 1 ? 's' : ''}`
+  }
+
+  const mapBalanceToText = (balance: number) => {
+    if (balance > 0.9) return 'Muy desbalanceado'
+    if (balance > 0.75) return 'Desbalanceado'
+    if (balance > 0.6) return 'Un poco desbalanceado'
+    return 'Balanceado'
   }
 
   return (
@@ -221,12 +231,12 @@ function ContactShowComponent() {
                   </div>
                 )}
                 <div
-                  className={`absolute -bottom-2 -right-2 w-12 h-12 rounded-full ${getScoreBgColor(stats.score)} border-2 border-white flex items-center justify-center`}
+                  className={`absolute -bottom-2 -right-2 w-12 h-12 rounded-full ${getScoreBgColor(contactStats?.health_score ?? 0)} border-2 border-white flex items-center justify-center`}
                 >
                   <span
-                    className={`text-lg font-bold ${getScoreColor(stats.score)}`}
-                  >
-                    {stats.score}
+                    className={`text-lg font-bold ${getScoreColor(contactStats?.health_score ?? 0)}`}
+                  > 
+                    {contactStats?.health_score}
                   </span>
                 </div>
               </div>
@@ -235,34 +245,25 @@ function ContactShowComponent() {
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
                   {contact.first_name} {contact.last_name}
                 </h1>
-                <Badge
-                  className={`${getCategoryColor(contact.relationship_type)} mb-4`}
-                >
-                  {contact.relationship_type}
-                </Badge>
+                <div className="flex flex-col gap-5">
+                  <Badge
+                    className={`${getCategoryColor(contact.relationship_type)} px-5`}
+                  >
+                    {contact.relationship_type}
+                  </Badge>
 
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {contact.personality_tags.map((tag, index) => (
-                    <Badge key={index} variant="outline" className="bg-white">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-
-                <div className="flex gap-6 text-sm text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <MessageCircle className="w-4 h-4" />
-                    <span>{stats.totalInteractions} interacciones</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    <span>Último contacto: {stats.lastContact}</span>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {contact.personality_tags.map((tag, index) => (
+                      <Badge key={index} variant="outline" className="bg-white">
+                        {tag}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-2">
+            {/* <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="icon"
@@ -283,13 +284,13 @@ function ContactShowComponent() {
                 contact={contact}
                 onClose={() => setShowEditForm(false)}
               />
-            )}
+            )} */}
           </div>
         </Card>
 
         {/* Tabs Section */}
         <Tabs defaultValue="stats" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="stats" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               Estadísticas
@@ -302,10 +303,6 @@ function ContactShowComponent() {
               <MessageCircle className="w-4 h-4" />
               Chats
             </TabsTrigger>
-            <TabsTrigger value="reminders" className="flex items-center gap-2">
-              <List className="w-4 h-4" />
-              Recordatorios
-            </TabsTrigger>
           </TabsList>
 
           {/* Stats Tab */}
@@ -314,11 +311,11 @@ function ContactShowComponent() {
               <Card className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Health Score</p>
+                    <p className="text-sm text-gray-600 mb-1">Puntaje de relación</p>
                     <p
-                      className={`text-3xl font-bold ${getScoreColor(stats.score)}`}
+                      className={`text-3xl font-bold ${getScoreColor(contactStats?.health_score ?? 0)}`}
                     >
-                      {stats.score}/100
+                      {contactStats?.health_score}/100
                     </p>
                   </div>
                   <div className="p-3 bg-blue-100 rounded-lg">
@@ -326,11 +323,11 @@ function ContactShowComponent() {
                   </div>
                 </div>
                 <p className="text-xs text-gray-500">
-                  {stats.score >= 80
-                    ? 'Excellent relationship health'
-                    : stats.score >= 50
-                      ? 'Needs some attention'
-                      : 'Requires immediate attention'}
+                  {(contactStats?.health_score ?? 0) >= 80
+                    ? 'Excelente estado de la relación'
+                    : (contactStats?.health_score ?? 0) >= 50
+                      ? 'Necesita atención'
+                      : 'Requiere atención inmediata'}
                 </p>
               </Card>
 
@@ -338,25 +335,24 @@ function ContactShowComponent() {
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <p className="text-sm text-gray-600 mb-1">
-                      Total Interactions
+                      Total de interacciones
                     </p>
                     <p className="text-3xl font-bold text-gray-900">
-                      {stats.totalInteractions}
+                      {contactStats?.total_interactions}
                     </p>
                   </div>
                   <div className="p-3 bg-green-100 rounded-lg">
                     <MessageCircle className="w-6 h-6 text-green-600" />
                   </div>
                 </div>
-                <p className="text-xs text-gray-500">Conversations recorded</p>
               </Card>
 
               <Card className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Last Contact</p>
+                    <p className="text-sm text-gray-600 mb-1">Último contacto</p>
                     <p className="text-xl font-bold text-gray-900">
-                      {stats.lastContact}
+                      {formatMessageTime(contactStats?.last_interaction_date)}
                     </p>
                   </div>
                   <div className="p-3 bg-purple-100 rounded-lg">
@@ -364,57 +360,41 @@ function ContactShowComponent() {
                   </div>
                 </div>
                 <p className="text-xs text-gray-500">
-                  Last conversation: {stats.lastConversation}
+                  Último topico: {contactStats?.last_conversation_topic}
                 </p>
               </Card>
             </div>
 
             <Card className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Interaction History
+                Historial de interracciones
               </h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between py-3 border-b border-gray-100">
                   <div>
                     <p className="text-sm font-medium text-gray-900">
-                      Response Time
+                      Tiempo de respuesta
                     </p>
                     <p className="text-xs text-gray-500">
-                      Average time to respond
+                      Tiempo promedio de respuesta
                     </p>
                   </div>
                   <Badge
                     variant="outline"
                     className="bg-green-50 text-green-700"
                   >
-                    &lt; 1 hour
+                    {formatResponseTime(contactStats?.response_time_median_min ?? 0)}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-gray-100">
                   <div>
                     <p className="text-sm font-medium text-gray-900">
-                      Communication Balance
+                      Balance de comunicación
                     </p>
-                    <p className="text-xs text-gray-500">Who initiates more</p>
+                    <p className="text-xs text-gray-500">Quién inicia más</p>
                   </div>
                   <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                    Balanced
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between py-3">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      Current Streak
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Consecutive weeks of contact
-                    </p>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className="bg-orange-50 text-orange-700"
-                  >
-                    5 weeks
+                    {mapBalanceToText(contactStats?.communication_balance ?? 0)}
                   </Badge>
                 </div>
               </div>
@@ -536,109 +516,15 @@ function ContactShowComponent() {
                     <p className="text-sm text-gray-700">{chat.message_text}</p>
                   </div>
                 ))}
+                {sortedChats.length === 0 && (
+                  <p className="text-sm text-gray-500">
+                    No hay mensajes cargados para este contacto.
+                  </p>
+                )}
               </div>
             </Card>
           </TabsContent>
 
-          {/* Reminders Tab */}
-          <TabsContent value="reminders" className="space-y-6">
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Gift className="w-5 h-5 text-pink-600" />
-                Important Dates
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3 p-3 bg-pink-50 rounded-lg">
-                  <Calendar className="w-5 h-5 text-pink-600 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">
-                      Birthday
-                    </p>
-                    <p className="text-xs text-gray-600">
-                      January 15 (Coming up in 54 days)
-                    </p>
-                  </div>
-                  <Button size="sm" variant="outline">
-                    Set Reminder
-                  </Button>
-                </div>
-
-                <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
-                  <Calendar className="w-5 h-5 text-purple-600 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">
-                      Anniversary
-                    </p>
-                    <p className="text-xs text-gray-600">
-                      Friendship Anniversary - March 10
-                    </p>
-                  </div>
-                  <Button size="sm" variant="outline">
-                    Set Reminder
-                  </Button>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Bell className="w-5 h-5 text-blue-600" />
-                Active Reminders
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Bell className="w-4 h-4 text-blue-600" />
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        Check in reminder
-                      </p>
-                      <p className="text-xs text-gray-600">Every 2 weeks</p>
-                    </div>
-                  </div>
-                  <Button size="sm" variant="ghost">
-                    Edit
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Bell className="w-4 h-4 text-green-600" />
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        Birthday reminder
-                      </p>
-                      <p className="text-xs text-gray-600">1 week before</p>
-                    </div>
-                  </div>
-                  <Button size="sm" variant="ghost">
-                    Edit
-                  </Button>
-                </div>
-              </div>
-
-              <Button className="w-full mt-4" variant="outline">
-                <Bell className="w-4 h-4 mr-2" />
-                Add New Reminder
-              </Button>
-            </Card>
-
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Quick Notes
-              </h3>
-              <ul className="space-y-2 list-disc list-inside text-sm text-gray-700">
-                <li>Prefers morning meetings</li>
-                <li>Loves Italian food</li>
-                <li>Has a dog named Max</li>
-                <li>Works in marketing</li>
-                <li>Interested in photography</li>
-              </ul>
-              <Button className="w-full mt-4" variant="outline" size="sm">
-                Add Note
-              </Button>
-            </Card>
-          </TabsContent>
         </Tabs>
       </div>
     </div>
