@@ -23,6 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { ContactForm } from '@/components/contacts/ContactForm'
 import { useContacts } from '@/hooks/contact-hook'
+import { useContactPhoto } from '@/hooks/contact-photo-hook'
 
 export const Route = createFileRoute('/contacts/$contactId')({
   component: ContactShowComponent,
@@ -43,6 +44,9 @@ function ContactShowComponent() {
   const navigate = useNavigate()
 
   const contact = contacts.find((c) => c.id === contactIdNum)
+
+  const { data: photoData } = useContactPhoto(contactIdNum)
+  const avatarUrl = photoData ? URL.createObjectURL(photoData) : null
   const stats: PersonStats = {
     score: 5,
     totalInteractions: 42,
@@ -157,6 +161,8 @@ function ContactShowComponent() {
         return 'bg-gray-100 text-gray-800'
     }
   }
+  console.log('Rendering contact:', contact)
+  console.log('Avatar URL:', avatarUrl)
 
   return (
     <div className="min-h-screen bg-[#f5f3f0] p-8">
@@ -174,11 +180,20 @@ function ContactShowComponent() {
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-start gap-6">
               <div className="relative">
-                <img
-                  src={contact.avatar}
-                  alt={`${contact.first_name} ${contact.last_name}`}
-                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
-                />
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={`${contact.first_name} ${contact.last_name}`}
+                    className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                  />
+                ) : (
+                  <div className="w-32 h-32 rounded-full bg-gray-200 border-4 border-white shadow-lg flex items-center justify-center">
+                    <span className="text-3xl font-semibold text-gray-500">
+                      {contact.first_name[0]}
+                      {contact.last_name[0]}
+                    </span>
+                  </div>
+                )}
                 <div
                   className={`absolute -bottom-2 -right-2 w-12 h-12 rounded-full ${getScoreBgColor(stats.score)} border-2 border-white flex items-center justify-center`}
                 >

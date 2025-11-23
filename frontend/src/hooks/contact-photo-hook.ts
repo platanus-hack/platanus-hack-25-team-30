@@ -7,4 +7,3 @@ export function useContactPhoto(contactId: number) {
     queryFn: () => contactsApi.getPhoto(contactId),
   })
 }
-

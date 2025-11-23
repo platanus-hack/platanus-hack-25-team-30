@@ -56,12 +56,11 @@ export const contactsApi = {
       },
     )
 
+    if (response.status === 204) {
+      return null
+    }
     if (!response.ok) {
-      if (response.status === 404) {
-        return null
-      } else {
-        throw new Error('Failed to fetch contact photo')
-      }
+      throw new Error('Failed to fetch contact photo')
     }
 
     return response.blob()
