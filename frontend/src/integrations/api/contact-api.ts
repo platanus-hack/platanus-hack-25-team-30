@@ -1,4 +1,5 @@
 import type { Contact, CreateContactPayload } from '@/lib/types/contact-types'
+import type { Chat } from '@/lib/types/chats-types'
 import { ContactSchema } from '@/lib/types/contact-types'
 import { getContact } from '@/lib/mappers/contact-mappers'
 
@@ -64,6 +65,20 @@ export const contactsApi = {
     }
 
     return response.blob()
+  },
+
+  async getChats(contactId: number): Promise<Array<Chat>> {
+    const response = await fetch(
+      `${API_BASE_URL}/contacts/${contactId}/records`,
+      {
+        headers: { 'user-token': 'test' },
+      },
+    )
+
+    if (!response.ok) throw new Error('Failed to fetch contact chats')
+
+    const data = await response.json()
+    return data
   },
 
   async getById(id: string): Promise<Contact> {
