@@ -149,19 +149,6 @@ export default function Header() {
           </Link>
 
           <Link
-            to="/"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors mb-2 text-gray-700"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-red-400 hover:bg-red-500 transition-colors mb-2 text-white',
-            }}
-          >
-            <BarChart3 size={20} />
-            <span className="font-medium">Analíticas</span>
-          </Link>
-
-          <Link
             to="/import"
             onClick={() => setIsOpen(false)}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors mb-2 text-gray-700"
