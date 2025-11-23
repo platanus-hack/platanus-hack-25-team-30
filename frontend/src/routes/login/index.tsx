@@ -45,26 +45,22 @@ function LoginComponent() {
       const password = data.get('password')?.toString()
 
       if (!username || !password) {
-        setError('Please fill in all fields')
+        setError('Porfavor completa todos los campos')
         return
       }
 
       if (isRegister) {
-        const email = data.get('email')?.toString()
-        if (!email) {
-          setError('Please fill in all fields')
-          return
-        }
-
-        const result = await authActions.register(username, email, password)
+        const result = await authActions.register(username, password)
         if (!result.success) {
-          setError(result.error || 'Registration failed')
+          setError(result.error || 'Registro ha fallado, prueba otro usuario')
           return
         }
       } else {
         const result = await authActions.login(username, password)
         if (!result.success) {
-          setError(result.error || 'Login failed')
+          setError(
+            result.error || 'Login ha fallado, verifica tus credenciales',
+          )
           return
         }
       }
@@ -173,27 +169,6 @@ function LoginComponent() {
                       className="transition-all duration-300"
                     />
                   </div>
-
-                  {isRegister && (
-                    <div
-                      className={`space-y-2 transition-all duration-500`}
-                    >
-                      <label
-                        htmlFor="email-input"
-                        className="text-sm font-medium"
-                      >
-                        Email
-                      </label>
-                      <Input
-                        id="email-input"
-                        name="email"
-                        placeholder="Ingresa tu correo electrónico"
-                        type="email"
-                        required={isRegister}
-                        className="transition-all duration-300"
-                      />
-                    </div>
-                  )}
 
                   <div className="space-y-2">
                     <label

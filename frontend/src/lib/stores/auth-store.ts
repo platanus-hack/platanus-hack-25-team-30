@@ -99,7 +99,6 @@ export const authActions = {
 
   async register(
     username: string,
-    email: string,
     password: string,
   ): Promise<{ success: boolean; error?: string }> {
     try {
