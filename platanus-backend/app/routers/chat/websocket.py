@@ -89,6 +89,9 @@ async def chat_websocket(websocket: WebSocket, person_id: int, token: str = ""):
         user_name=user.username,
     )
 
+    # Session conversation history (in-memory, lasts for the WebSocket connection)
+    conversation_history: list[dict] = []
+
     try:
         while True:
             # Receive message from client
@@ -110,7 +113,12 @@ async def chat_websocket(websocket: WebSocket, person_id: int, token: str = ""):
                     client=client,
                     system_prompt=system_prompt,
                     user_message=user_message,
+                    conversation_history=conversation_history,
                 )
+
+                # Add user message and assistant response to conversation history
+                conversation_history.append({"role": "user", "content": user_message})
+                conversation_history.append({"role": "assistant", "content": llm_response.message})
 
                 # Send response back
                 response = WebSocketOutgoingMessage(
