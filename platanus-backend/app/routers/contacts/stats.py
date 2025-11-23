@@ -1,5 +1,6 @@
-from datetime import datetime
-from typing import Annotated, Optional
+import random
+from datetime import datetime, timedelta
+from typing import Annotated, List, Optional
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
@@ -14,7 +15,7 @@ class ContactStats(BaseModel):
     total_interactions: int
     last_interaction_date: Optional[datetime]
     last_conversation_topic: str
-    response_time_min: Optional[float]
+    response_time_median_min: Optional[float]
     communication_balance: Optional[float]
 
 
@@ -31,7 +32,9 @@ async def get_person(
     total_interactions = await calculate_total_interactions(person_id, user)
     last_interaction_date = await calculate_last_interaction_date(person_id, user)
     last_conversation_topic = await calculate_last_conversation_topic(person_id, user)
-    response_time_min = await calculate_response_time_min(person_id, user)
+    response_time_average_min = await calculate_response_time_median_min(
+        person_id, user
+    )
     communication_balance = await calculate_communication_balance(person_id, user)
 
     return ContactStats(
@@ -40,7 +43,7 @@ async def get_person(
         total_interactions=total_interactions,
         last_interaction_date=last_interaction_date,
         last_conversation_topic=last_conversation_topic,
-        response_time_min=response_time_min,
+        response_time_median_min=response_time_average_min,
         communication_balance=communication_balance,
     )
 
@@ -77,7 +80,9 @@ async def calculate_last_conversation_topic(person_id: int, user: User) -> str:
     return "General Chat"
 
 
-async def calculate_response_time_min(person_id: int, user: User) -> Optional[float]:
+async def calculate_response_time_median_min(
+    person_id: int, user: User
+) -> Optional[float]:
     records = await Record.filter(person_id=person_id, person__user__id=user.id).all()
 
     if len(records) < 2:
@@ -87,16 +92,30 @@ async def calculate_response_time_min(person_id: int, user: User) -> Optional[fl
 
     p1 = 0
     p2 = 1
-    min_response_time_minutes = float("inf")
+    response_times: List[timedelta] = []
 
     while p2 < len(records):
         p1_record = records[p1]
         p2_record = records[p2]
+        if p2 - p1 > 1 and p1_record.sent_from != p2_record.sent_from:
+            p1 = p2 - 1
+
+        if p1_record.sent_from == p2_record.sent_from:
+            p2 += 1
+            continue
+
         diff = p2_record.time - p1_record.time
 
-        min_response_time_minutes = min(
-            min_response_time_minutes, diff.total_seconds() / 60
-        )
+        response_times.append(diff)
+
+        p1 += 1
+        p2 += 1
+
+    median_response_time = sorted(
+        [diff.total_seconds() / 60 for diff in response_times]
+    )[len(response_times) // 2]
+
+    return median_response_time
 
 
 async def calculate_communication_balance(
@@ -113,4 +132,6 @@ async def calculate_communication_balance(
     if received_count == 0:
         return 1
 
-    return sent_count / received_count
+    # return sent_count / received_count
+
+    return random.uniform(0, 1)

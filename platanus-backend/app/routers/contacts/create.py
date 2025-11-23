@@ -9,7 +9,12 @@ from app.db import Person as PersonModel
 from app.db import User
 from app.dependencies import get_user_token_header
 
-router = APIRouter()
+from .records.get import router as records_router
+from .stats import router as stats_router
+
+router = APIRouter(prefix="/contacts", tags=["contacts"])
+router.include_router(records_router)
+router.include_router(stats_router)
 
 relationship_types = (
     "Familia",
