@@ -8,14 +8,14 @@ import {
   Calendar,
   Clock,
   Eye,
-  Flame,
+  Loader2,
   MoreVertical,
   Pencil,
   Trash2,
   TrendingUp,
   Users,
 } from 'lucide-react'
-import type { ContactStats } from '@/lib/types/person-stats-types'
+import type { Stats } from '@/lib/types/stats-types'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
@@ -35,7 +35,9 @@ import { Badge } from '@/components/ui/badge'
 import { CardStack } from '@/components/CardStack'
 import { authStore } from '@/lib/stores/auth-store'
 import { useContacts } from '@/hooks/contact-hook'
+import { useAllContactsStats } from '@/hooks/all-contacts-stats-hook'
 import { ContactAvatar } from '@/components/contacts/ContactAvatar'
+import { formatDate } from '@/lib/utils'
 
 export const Route = createFileRoute('/dashboard/')({
   component: RouteComponent,
@@ -54,16 +56,26 @@ interface MockTipOrInsight {
 }
 
 // Get keys for sorting
-type SortKeys = keyof ContactStats
-// Get sort keys from ContactStats
+type SortKeys = keyof Stats
+// Get sort keys from Stats
 const sortKeys: Array<SortKeys> = [
-  'healthScore',
-  'totalInteractions',
-  'lastContact',
-  'lastConversationTopic',
-  'responseTimeMin',
-  'communicationBalance',
+  'health_score',
+  'total_interactions',
+  'last_interaction_date',
+  'last_conversation_topic',
+  'response_time_median_min',
+  'communication_balance',
 ]
+
+const sortKeyLabels: Record<SortKeys, string> = {
+  health_score: 'Puntaje de Relación',
+  health_status: 'Estado de Salud',
+  total_interactions: 'Total Interacciones',
+  last_interaction_date: 'Último Contacto',
+  last_conversation_topic: 'Último Tema',
+  response_time_median_min: 'Tiempo de Respuesta',
+  communication_balance: 'Balance de Comunicación',
+}
 
 function RouteComponent() {
   const state = useStore(authStore)
@@ -72,37 +84,43 @@ function RouteComponent() {
 
   const [sortBy, setSortBy] = useState<string>('')
   const { contacts } = useContacts(token)
-  const contactsStats: Array<ContactStats> = Array(contacts.length)
-    .fill(null)
-    .map(() => ({
-      healthStatus: 'Bad',
-      healthScore: Math.floor(Math.random() * 100),
-      totalInteractions: Math.floor(Math.random() * 200),
-      lastContact: new Date('2020-01-01T06:15:00Z').toISOString(),
-      lastConversationTopic: 'Discussed project updates',
-      streak: Math.floor(Math.random() * 20),
-      responseTimeMin: Math.floor(Math.random() * 120) + 1,
-      communicationBalance: Math.random(),
-    }))
+  const { statsMap, isLoading: isLoadingStats } = useAllContactsStats(
+    contacts,
+    token,
+  )
 
-  const mergedContacts = contacts.map((contact, index) => ({
+  const mergedContacts = contacts.map((contact) => ({
     contact,
-    stats: contactsStats[index],
+    stats: statsMap.get(contact.id) ?? null,
   }))
 
-  const mockStats: AverageStats = {
-    totalRelationships: 24,
-    averageHealthScore: 78,
-    interactionCountMonthly: 47,
-    needAttentionCount: 5,
-  }
+  const aggregateStats: AverageStats = useMemo(() => {
+    const contactsWithStats = mergedContacts.filter((mc) => mc.stats !== null)
+    const totalRelationships = contacts.length
+    const averageHealthScore =
+      contactsWithStats.length > 0
+        ? Math.round(
+            contactsWithStats.reduce(
+              (sum, mc) => sum + (mc.stats?.health_score ?? 0),
+              0,
+            ) / contactsWithStats.length,
+          )
+        : 0
+    const interactionCountMonthly = contactsWithStats.reduce(
+      (sum, mc) => sum + (mc.stats?.total_interactions ?? 0),
+      0,
+    )
+    const needAttentionCount = contactsWithStats.filter(
+      (mc) => (mc.stats?.health_score ?? 100) < 65,
+    ).length
 
-  const mockSortStats = [
-    { label: 'Relationship Score', value: 'healthScore' },
-    { label: 'Most Interactions', value: 'interactions' },
-    { label: 'Longest Streak', value: 'streak' },
-    { label: 'Recent Contact', value: 'lastContact' },
-  ]
+    return {
+      totalRelationships,
+      averageHealthScore,
+      interactionCountMonthly,
+      needAttentionCount,
+    }
+  }, [mergedContacts, contacts.length])
 
   const mockTips: Array<MockTipOrInsight> = [
     {
@@ -155,14 +173,14 @@ function RouteComponent() {
         return 0
       }
       const checkedKey = key as SortKeys
-      const aValue = a.stats[checkedKey]
-      const bValue = b.stats[checkedKey]
+      const aValue = a.stats?.[checkedKey]
+      const bValue = b.stats?.[checkedKey]
       if (typeof aValue === 'number' && typeof bValue === 'number') {
         return bValue - aValue
       }
       return 0
     })
-  }, [sortBy])
+  }, [sortBy, mergedContacts])
 
   const getHealthColor = (score: number) => {
     if (score >= 85) return 'text-green-600'
@@ -185,14 +203,12 @@ function RouteComponent() {
           <Card className="p-6 bg-white">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-2">
-                  Total Relationships
-                </p>
+                <p className="text-sm text-gray-600 mb-2">Total Relaciones</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  {mockStats.totalRelationships}
+                  {aggregateStats.totalRelationships}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Across all categories
+                  En todas las categorías
                 </p>
               </div>
               <div className="p-3 bg-pink-100 rounded-lg">
@@ -204,12 +220,16 @@ function RouteComponent() {
           <Card className="p-6 bg-white">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-2">Avg. Health Score</p>
+                <p className="text-sm text-gray-600 mb-2">Puntaje Promedio</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  {mockStats.averageHealthScore}/100
+                  {isLoadingStats ? (
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  ) : (
+                    `${aggregateStats.averageHealthScore}/100`
+                  )}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Overall relationship health
+                  Salud general de relaciones
                 </p>
               </div>
               <div className="p-3 bg-red-100 rounded-lg">
@@ -221,12 +241,16 @@ function RouteComponent() {
           <Card className="p-6 bg-white">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-2">This Month</p>
+                <p className="text-sm text-gray-600 mb-2">Total Interacciones</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  {mockStats.interactionCountMonthly}
+                  {isLoadingStats ? (
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  ) : (
+                    aggregateStats.interactionCountMonthly
+                  )}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Total interactions logged
+                  Interacciones registradas
                 </p>
               </div>
               <div className="p-3 bg-red-100 rounded-lg">
@@ -238,12 +262,16 @@ function RouteComponent() {
           <Card className="p-6 bg-white">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-2">Need Attention</p>
+                <p className="text-sm text-gray-600 mb-2">Necesitan Atención</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  {mockStats.needAttentionCount}
+                  {isLoadingStats ? (
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  ) : (
+                    aggregateStats.needAttentionCount
+                  )}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Haven't contacted recently
+                  Contactos con puntaje bajo
                 </p>
               </div>
               <div className="p-3 bg-red-100 rounded-lg">
@@ -268,15 +296,15 @@ function RouteComponent() {
 
         {/* Sort By */}
         <div className="mb-6 flex items-center gap-3">
-          <label className="text-sm font-medium text-gray-700">Sort by:</label>
+          <label className="text-sm font-medium text-gray-700">Ordenar por:</label>
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-[220px] bg-white">
-              <SelectValue placeholder="Relationship Score" />
+              <SelectValue placeholder="Puntaje de Relación" />
             </SelectTrigger>
             <SelectContent>
               {sortKeys.map((key) => (
                 <SelectItem key={key} value={key}>
-                  {key}
+                  {sortKeyLabels[key]}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -302,7 +330,7 @@ function RouteComponent() {
                       {mergedContact.contact.first_name}
                     </h3>
                     <p className="text-xs text-gray-500">
-                      {mergedContact.stats.totalInteractions} interactions
+                      {mergedContact.stats?.total_interactions ?? 0} interacciones
                     </p>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {mergedContact.contact.personality_tags.map(
@@ -386,26 +414,26 @@ function RouteComponent() {
                       cy="48"
                       r="40"
                       stroke={
-                        mergedContact.stats.healthScore >= 85
+                        (mergedContact.stats?.health_score ?? 0) >= 85
                           ? '#16a34a'
-                          : mergedContact.stats.healthScore >= 60
+                          : (mergedContact.stats?.health_score ?? 0) >= 60
                             ? '#f97316'
                             : '#dc2626'
                       }
                       strokeWidth="8"
                       fill="none"
-                      strokeDasharray={`${(mergedContact.stats.healthScore / 100) * 251.2} 251.2`}
+                      strokeDasharray={`${((mergedContact.stats?.health_score ?? 0) / 100) * 251.2} 251.2`}
                       strokeLinecap="round"
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span
-                      className={`text-lg font-bold ${getHealthColor(mergedContact.stats.healthScore)}`}
+                      className={`text-lg font-bold ${getHealthColor(mergedContact.stats?.health_score ?? 0)}`}
                     >
-                      {mergedContact.stats.healthScore}/100
+                      {mergedContact.stats?.health_score ?? 0}/100
                     </span>
                     <span className="text-xs text-gray-600">
-                      {mergedContact.stats.healthStatus}
+                      {mergedContact.stats?.health_status ?? '-'}
                     </span>
                   </div>
                 </div>
@@ -413,54 +441,40 @@ function RouteComponent() {
                 {/* Contact Info */}
                 <div className="flex-1 space-y-2 text-sm">
                   <div>
-                    <p className="text-gray-600 font-medium">Last Contact</p>
+                    <p className="text-gray-600 font-medium">Último Contacto</p>
                     <p className="text-gray-900">
-                      {mergedContact.stats.lastContact}
+                      {formatDate(mergedContact.stats?.last_interaction_date)}
                     </p>
-                    {/* Badge para el source (usar color e icono segun app de mockApps) */}
-                    <Badge
-                      className="mt-1 px-2 py-1 text-xs font-medium"
-                      variant="secondary"
-                    >
-                      {'whatsapp'}
-                    </Badge>
                   </div>
                 </div>
               </div>
 
-              {/* Stats Row - Response Time and Streak in same row */}
+              {/* Stats Row - Response Time */}
               <div className="flex items-center justify-between py-3 border-t border-gray-100">
-                <div className="flex items-center gap-6">
-                  <div className="flex items-center gap-1 text-sm">
-                    <Clock className="w-4 h-4 text-gray-500" />
-                    <span className="text-gray-600">Response Time</span>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">
-                    {mergedContact.stats.responseTimeMin}
-                  </span>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm text-gray-600">Tiempo de Respuesta</span>
                 </div>
-                <div className="flex items-center gap-6">
-                  <div className="flex items-center gap-1 text-sm">
-                    <Flame className="w-4 h-4 text-gray-500" />
-                    <span className="text-gray-600">Streak</span>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">
-                    1 week
-                  </span>
-                </div>
+                <span className="text-sm font-medium text-gray-900">
+                  {mergedContact.stats?.response_time_median_min
+                    ? `${Math.round(mergedContact.stats.response_time_median_min)} min`
+                    : '-'}
+                </span>
               </div>
 
               {/* Communication Balance - Alone in final row */}
               <div className="pt-3 border-t border-gray-100">
                 <p className="text-xs text-gray-600 mb-1">
-                  Communication Balance
+                  Balance de Comunicación
                 </p>
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-medium text-gray-900">
-                    {mergedContact.stats.communicationBalance}
+                    {mergedContact.stats?.communication_balance !== undefined
+                      ? (mergedContact.stats.communication_balance * 100).toFixed(0) + '%'
+                      : '-'}
                   </p>
-                  {mergedContact.stats.communicationBalance >= 0.4 &&
-                  mergedContact.stats.communicationBalance <= 0.6 ? (
+                  {(mergedContact.stats?.communication_balance ?? 0) >= 0.4 &&
+                  (mergedContact.stats?.communication_balance ?? 0) <= 0.6 ? (
                     <ArrowUpRight className="w-4 h-4 text-green-600" />
                   ) : (
                     <ArrowDownRight className="w-4 h-4 text-orange-500" />
@@ -469,11 +483,11 @@ function RouteComponent() {
               </div>
 
               {/* Warning if needed */}
-              {mergedContact.stats.healthScore < 65 && (
+              {(mergedContact.stats?.health_score ?? 100) < 65 && (
                 <div className="mt-3 p-2 bg-orange-50 rounded-md flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-orange-600" />
                   <span className="text-xs text-orange-800 font-medium">
-                    Needs Attention
+                    Necesita Atención
                   </span>
                 </div>
               )}
