@@ -41,11 +41,15 @@ export default function Header() {
           >
             <Menu size={24} />
           </button>
-          <Link
-            to="/dashboard"
-            className="ml-4 text-xl font-semibold text-gray-900"
-          >
-            DeepBonds
+          <Link to="/dashboard" className="ml-4 flex items-center gap-2">
+            <img
+              src="/deepbonds.png"
+              alt="DeepBonds logo"
+              className="h-8 w-8 object-contain"
+            />
+            <span className="text-2xl font-semibold text-gray-900">
+              DeepBonds
+            </span>
           </Link>
         </div>
 
