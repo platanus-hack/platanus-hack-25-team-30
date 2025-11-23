@@ -102,13 +102,6 @@ function RouteComponent() {
     return avatarUrl
   })
 
-  // const contactsPhoto = Array(contacts.length)
-  //   .fill(null)
-  //   .map((_, index) => {
-  //     const { data: photoData } = useContactPhoto(contact.id)
-  //     const avatarUrl = photoData ? URL.createObjectURL(photoData) : null
-  //   })
-
   const mergedContacts = contacts.map((contact, index) => ({
     contact,
     stats: contactsStats[index],

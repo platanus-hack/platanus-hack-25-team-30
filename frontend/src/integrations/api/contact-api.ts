@@ -47,7 +47,7 @@ export const contactsApi = {
     return parsedContacts
   },
 
-  async getPhoto(contactId: number): Promise<Blob> {
+  async getPhoto(contactId: number): Promise<Blob | null> {
     const response = await fetch(
       `${API_BASE_URL}/contacts/${contactId}/photo`,
       {
@@ -55,7 +55,13 @@ export const contactsApi = {
       },
     )
 
-    if (!response.ok) throw new Error('Failed to fetch contact photo')
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null
+      } else {
+        throw new Error('Failed to fetch contact photo')
+      }
+    }
 
     return response.blob()
   },

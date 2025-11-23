@@ -140,7 +140,7 @@ async def get_person_photo(
         raise HTTPException(status_code=404, detail="Person not found")
 
     if not person.photo:
-        raise HTTPException(status_code=404, detail="Photo not found")
+        raise HTTPException(status_code=204, detail="Person has no photo")
 
     return Response(
         content=person.photo,
