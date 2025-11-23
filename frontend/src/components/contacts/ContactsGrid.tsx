@@ -12,8 +12,6 @@ export function ContactsGrid({ contacts }: ContactsGridProps) {
         <ContactCard
           key={contact.id}
           contact={contact}
-          score={10}
-          lastConversation="xd"
         />
       ))}
     </div>

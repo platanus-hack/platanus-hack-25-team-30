@@ -26,17 +26,11 @@ import { useContactPhoto } from '@/hooks/contact-photo-hook'
 import { useContactChats } from '@/hooks/contact-chats-hook'
 import { useContactStats } from '@/hooks/contact-stats-hook'
 import { authStore } from '@/lib/stores/auth-store'
+import { formatDate } from '@/lib/utils'
 
 export const Route = createFileRoute('/contacts/$contactId')({
   component: ContactShowComponent,
 })
-
-interface PersonStats {
-  score: number
-  totalInteractions: number
-  lastContact: string
-  lastConversation: string
-}
 
 function ContactShowComponent() {
   const state = useStore(authStore)
@@ -125,15 +119,15 @@ function ContactShowComponent() {
         <div className="max-w-4xl mx-auto">
           <Card className="p-8 text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Contact Not Found
+              Contacto no encontrado
             </h2>
             <p className="text-gray-600 mb-6">
-              The contact you're looking for doesn't exist.
+              El contacto que buscas no existe.
             </p>
             <Link to="/contacts">
               <Button>
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Contacts
+                Volver a contactos
               </Button>
             </Link>
           </Card>
@@ -247,7 +241,7 @@ function ContactShowComponent() {
                 </h1>
                 <div className="flex flex-col gap-5">
                   <Badge
-                    className={`${getCategoryColor(contact.relationship_type)} px-5`}
+                    className={`${getCategoryColor(contact.relationship_type)} w-fit hover:bg-opacity-100`}
                   >
                     {contact.relationship_type}
                   </Badge>
@@ -352,7 +346,7 @@ function ContactShowComponent() {
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Último contacto</p>
                     <p className="text-xl font-bold text-gray-900">
-                      {formatMessageTime(contactStats?.last_interaction_date)}
+                      {formatDate(contactStats?.last_interaction_date)}
                     </p>
                   </div>
                   <div className="p-3 bg-purple-100 rounded-lg">
@@ -383,7 +377,7 @@ function ContactShowComponent() {
                     variant="outline"
                     className="bg-green-50 text-green-700"
                   >
-                    {formatResponseTime(contactStats?.response_time_median_min ?? 0)}
+                    {formatResponseTime(Number((contactStats?.response_time_median_min ?? 0).toFixed(0)))}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-gray-100">
