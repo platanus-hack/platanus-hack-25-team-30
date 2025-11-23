@@ -22,11 +22,12 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { CardStack } from '@/components/CardStack'
 import { authStore } from '@/lib/stores/auth-store'
 import { useContacts } from '@/hooks/contact-hook'
 import { useAllContactsStats } from '@/hooks/all-contacts-stats-hook'
-import { ContactAvatar } from '@/components/contacts/ContactAvatar'
+import { useContactPhoto } from '@/hooks/contact-photo-hook'
 import { formatDate } from '@/lib/utils'
 
 export const Route = createFileRoute('/dashboard/')({
@@ -65,6 +66,36 @@ const sortKeyLabels: Record<SortKeys, string> = {
   last_conversation_topic: 'Último Tema',
   response_time_median_min: 'Tiempo de Respuesta',
   communication_balance: 'Balance de Comunicación',
+}
+
+// Component to display contact avatar with photo or initials
+function ContactAvatarWithPhoto({
+  contactId,
+  token,
+  firstName,
+  lastName,
+}: {
+  contactId: number
+  token: string
+  firstName: string
+  lastName: string
+}) {
+  const { data: photoData } = useContactPhoto(contactId, token)
+  const avatarUrl = photoData ? URL.createObjectURL(photoData) : null
+  const fullName = `${firstName} ${lastName}`
+
+  const getInitials = (first: string, last: string) => {
+    return `${first[0]}${last[0]}`.toUpperCase()
+  }
+
+  return (
+    <Avatar className="h-16 w-16">
+      <AvatarImage src={avatarUrl || undefined} alt={fullName} />
+      <AvatarFallback className="bg-gray-200 text-gray-700">
+        {getInitials(firstName, lastName)}
+      </AvatarFallback>
+    </Avatar>
+  )
 }
 
 function RouteComponent() {
@@ -273,9 +304,13 @@ function RouteComponent() {
 
         {/* Tips & Insights Card Stack */}
         <div className="my-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            Tips & Insights
-          </h2>
+          {/* Agrandamos la letra */}
+          <Badge
+            variant="outline"
+            className="mb-4 text-2xl font-semibold px-6 py-2 border-gray-300 bg-white shadow-md"
+          >
+            Consejos e Ideas para ti
+          </Badge>
           <CardStack
             cards={mockTips}
             maxVisibleCards={3}
@@ -315,10 +350,11 @@ function RouteComponent() {
               <Card className="p-6 bg-white hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <ContactAvatar
+                    <ContactAvatarWithPhoto
                       contactId={mergedContact.contact.id}
                       token={token}
-                      name={mergedContact.contact.first_name}
+                      firstName={mergedContact.contact.first_name}
+                      lastName={mergedContact.contact.last_name}
                     />
                     <div>
                       <h3 className="font-semibold text-gray-900">

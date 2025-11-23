@@ -168,11 +168,11 @@ export function CardStack({
       case 'tip':
         return 'Tip'
       case 'stat':
-        return 'Your Stats'
+        return 'Tus estadísticas'
       case 'globalStat':
-        return 'Did You Know?'
+        return '¿Sabías que?'
       case 'reminder':
-        return 'Reminder'
+        return 'Recordatorio'
       default:
         return 'Info'
     }

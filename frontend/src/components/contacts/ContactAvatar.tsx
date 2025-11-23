@@ -29,6 +29,14 @@ export function ContactAvatar({
     }
   }, [photoData])
 
+  const getInitials = (fullName: string) => {
+    const parts = fullName.trim().split(' ')
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+    }
+    return fullName.slice(0, 2).toUpperCase()
+  }
+
   if (avatarUrl) {
     return (
       <img
@@ -39,5 +47,11 @@ export function ContactAvatar({
     )
   }
 
-  return <div className={`${className} bg-gray-200 rounded-full`} />
+  return (
+    <div
+      className={`${className} rounded-full bg-gray-200 text-gray-700 flex items-center justify-center border-2 border-white shadow`}
+    >
+      {getInitials(name)}
+    </div>
+  )
 }
