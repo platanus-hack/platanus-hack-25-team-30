@@ -1,18 +1,17 @@
-import { Calendar, MoreVertical, PartyPopper } from 'lucide-react'
+import { Calendar, PartyPopper } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { useStore } from '@tanstack/react-store'
 import type { Contact } from '../../lib/types/contact-types'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { useContactPhoto } from '@/hooks/contact-photo-hook'
 import { authStore } from '@/lib/stores/auth-store'
+import { useContactStats } from '@/hooks/contact-stats-hook'
+import { formatDate } from '@/lib/utils'
 
 interface ContactCardProps {
   contact: Contact
-  score: number
-  lastConversation: string
 }
 
 function getScoreColor(score: number) {
@@ -24,8 +23,6 @@ function getScoreColor(score: number) {
 }
 export function ContactCard({
   contact,
-  score,
-  lastConversation,
 }: ContactCardProps) {
   const authState = useStore(authStore)
   if (!authState) return null
@@ -35,9 +32,11 @@ export function ContactCard({
     return `${firstName[0]}${lastName[0]}`.toUpperCase()
   }
 
+  const { contactStats } = useContactStats(contact.id, token)
+
   const fullName = `${contact.first_name} ${contact.last_name}`
 
-  const formatDate = (dateString: string) => {
+  const formatBirthday = (dateString: string) => {
     const date = new Date(dateString)
     const options: Intl.DateTimeFormatOptions = {
       day: 'numeric',
@@ -78,11 +77,11 @@ export function ContactCard({
           <div className="mb-4">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs text-gray-500">Puntaje</span>
-              {score > 0 && (
+              {contactStats?.health_score && (
                 <span
-                  className={`text-sm font-medium rounded-md px-2.5 py-1 border ${getScoreColor(score)}`}
+                  className={`text-sm font-medium rounded-md px-2.5 py-1 border ${getScoreColor(contactStats.health_score)}`}
                 >
-                  {score}
+                  {contactStats.health_score}
                 </span>
               )}
             </div>
@@ -93,13 +92,13 @@ export function ContactCard({
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Calendar className="h-4 w-4 text-gray-400" />
               <span className="text-xs">
-                Ultima conversación: {lastConversation}
+                Ultima conversación: {formatDate(contactStats?.last_interaction_date)}
               </span>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <PartyPopper className="h-4 w-4 text-gray-400" />
               <span className="text-xs">
-                Cumpleaños: {formatDate(contact.birthday)}
+                Cumpleaños: {formatBirthday(contact.birthday)}
               </span>
             </div>
           </div>
