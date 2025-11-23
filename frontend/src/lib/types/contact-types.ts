@@ -1,19 +1,36 @@
-export interface Contact {
-  id: string
-  firstName: string
-  lastName: string
-  avatar?: File
-  category: string
-  email: string
-  phone: string
-  birthday: string
-  score: number
-  lastContact: string
-  lastConversation: string
-  totalInteractions: number
-  tags: Array<string>
-  notes: string
-}
+import { z } from 'zod'
+
+export const Contact = z.object({
+  id: z.number(),
+  avatar: z.instanceof(File).optional(),
+  first_name: z.string(),
+  last_name: z.string(),
+  relationship_type: z.string(),
+  email: z.string(),
+  phone: z.string(),
+  birthday: z.string(),
+  personality_tags: z.array(z.string()),
+  notes: z.string(),
+})
+
+export type Contact = z.infer<typeof Contact>
+
+// export interface Contact {
+//   id: string
+//   firstName: string
+//   lastName: string
+//   avatar: string
+//   category: string
+//   email: string
+//   phone: string
+//   birthday: string
+//   score: number
+//   lastContact: string
+//   lastConversation: string
+//   totalInteractions: number
+//   tags: Array<string>
+//   notes: string
+// }
 
 export interface CreateContactPayload {
   first_name: string

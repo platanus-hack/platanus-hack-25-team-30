@@ -20,10 +20,12 @@ function RouteComponent() {
     const searchLower = searchValue.toLowerCase()
     return contacts.filter(
       (contact) =>
-        contact.firstName.toLowerCase().includes(searchLower) ||
-        contact.lastName.toLowerCase().includes(searchLower) ||
-        contact.category.toLowerCase().includes(searchLower) ||
-        contact.tags.some((tag) => tag.toLowerCase().includes(searchLower)),
+        contact.first_name.toLowerCase().includes(searchLower) ||
+        contact.last_name.toLowerCase().includes(searchLower) ||
+        contact.relationship_type.toLowerCase().includes(searchLower) ||
+        contact.personality_tags.some((tag) =>
+          tag.toLowerCase().includes(searchLower),
+        ),
     )
   }, [searchValue, contacts])
 

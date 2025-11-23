@@ -15,25 +15,40 @@ import {
   Trash2,
   TrendingUp,
 } from 'lucide-react'
-import * as React from 'react'
-import { contactsData } from '@/data/contact-data'
+import { useEffect, useRef, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { ContactForm } from '@/components/contacts/ContactForm'
+import { useContacts } from '@/hooks/contact-hook'
 
 export const Route = createFileRoute('/contacts/$contactId')({
   component: ContactShowComponent,
 })
 
+interface PersonStats {
+  score: number
+  totalInteractions: number
+  lastContact: string
+  lastConversation: string
+}
+
 function ContactShowComponent() {
-  const [showEditForm, setShowEditForm] = React.useState(false)
+  const [showEditForm, setShowEditForm] = useState(false)
   const { contactId } = Route.useParams()
+  const contactIdNum = parseInt(contactId, 10)
+  const { contacts } = useContacts()
   const navigate = useNavigate()
 
-  const contact = contactsData.find((c) => c.id === contactId)
+  const contact = contacts.find((c) => c.id === contactIdNum)
+  const stats: PersonStats = {
+    score: 5,
+    totalInteractions: 42,
+    lastContact: '2 days ago',
+    lastConversation: 'Discussed weekend plans',
+  }
 
   const mockInitialMessage = `Oye cabro wn, donde has estado? En lo prado???!!! Andate inmediatamente de esta casa porfa.`
   const mockAnswers = [
@@ -44,19 +59,19 @@ function ContactShowComponent() {
     'Estoy muy decepcionado/a por tus acciones recientes.',
   ]
 
-  const [messages, setMessages] = React.useState<
+  const [messages, setMessages] = useState<
     Array<{ from: 'user' | 'contact'; text: string; isLoading?: boolean }>
   >([{ from: 'contact', text: mockInitialMessage }])
 
-  const [input, setInput] = React.useState('')
-  const [loading, setLoading] = React.useState(false)
-  const messagesEndRef = React.useRef<HTMLDivElement>(null)
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     scrollToBottom()
   }, [messages])
 
@@ -161,30 +176,32 @@ function ContactShowComponent() {
               <div className="relative">
                 <img
                   src={contact.avatar}
-                  alt={`${contact.firstName} ${contact.lastName}`}
+                  alt={`${contact.first_name} ${contact.last_name}`}
                   className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
                 />
                 <div
-                  className={`absolute -bottom-2 -right-2 w-12 h-12 rounded-full ${getScoreBgColor(contact.score)} border-2 border-white flex items-center justify-center`}
+                  className={`absolute -bottom-2 -right-2 w-12 h-12 rounded-full ${getScoreBgColor(stats.score)} border-2 border-white flex items-center justify-center`}
                 >
                   <span
-                    className={`text-lg font-bold ${getScoreColor(contact.score)}`}
+                    className={`text-lg font-bold ${getScoreColor(stats.score)}`}
                   >
-                    {contact.score}
+                    {stats.score}
                   </span>
                 </div>
               </div>
 
               <div className="flex-1">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  {contact.firstName} {contact.lastName}
+                  {contact.first_name} {contact.last_name}
                 </h1>
-                <Badge className={`${getCategoryColor(contact.category)} mb-4`}>
-                  {contact.category}
+                <Badge
+                  className={`${getCategoryColor(contact.relationship_type)} mb-4`}
+                >
+                  {contact.relationship_type}
                 </Badge>
 
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {contact.tags.map((tag, index) => (
+                  {contact.personality_tags.map((tag, index) => (
                     <Badge key={index} variant="outline" className="bg-white">
                       {tag}
                     </Badge>
@@ -194,11 +211,11 @@ function ContactShowComponent() {
                 <div className="flex gap-6 text-sm text-gray-600">
                   <div className="flex items-center gap-1">
                     <MessageCircle className="w-4 h-4" />
-                    <span>{contact.totalInteractions} interacciones</span>
+                    <span>{stats.totalInteractions} interacciones</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
-                    <span>Último contacto: {contact.lastContact}</span>
+                    <span>Último contacto: {stats.lastContact}</span>
                   </div>
                 </div>
               </div>
@@ -220,7 +237,7 @@ function ContactShowComponent() {
                 <Trash2 className="w-4 h-4" />
               </Button>
             </div>
-            {showEditForm && contact && (
+            {showEditForm && (
               <ContactForm
                 contact={contact}
                 onClose={() => setShowEditForm(false)}
@@ -258,9 +275,9 @@ function ContactShowComponent() {
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Health Score</p>
                     <p
-                      className={`text-3xl font-bold ${getScoreColor(contact.score)}`}
+                      className={`text-3xl font-bold ${getScoreColor(stats.score)}`}
                     >
-                      {contact.score}/100
+                      {stats.score}/100
                     </p>
                   </div>
                   <div className="p-3 bg-blue-100 rounded-lg">
@@ -268,9 +285,9 @@ function ContactShowComponent() {
                   </div>
                 </div>
                 <p className="text-xs text-gray-500">
-                  {contact.score >= 80
+                  {stats.score >= 80
                     ? 'Excellent relationship health'
-                    : contact.score >= 50
+                    : stats.score >= 50
                       ? 'Needs some attention'
                       : 'Requires immediate attention'}
                 </p>
@@ -283,7 +300,7 @@ function ContactShowComponent() {
                       Total Interactions
                     </p>
                     <p className="text-3xl font-bold text-gray-900">
-                      {contact.totalInteractions}
+                      {stats.totalInteractions}
                     </p>
                   </div>
                   <div className="p-3 bg-green-100 rounded-lg">
@@ -298,7 +315,7 @@ function ContactShowComponent() {
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Last Contact</p>
                     <p className="text-xl font-bold text-gray-900">
-                      {contact.lastContact}
+                      {stats.lastContact}
                     </p>
                   </div>
                   <div className="p-3 bg-purple-100 rounded-lg">
@@ -306,7 +323,7 @@ function ContactShowComponent() {
                   </div>
                 </div>
                 <p className="text-xs text-gray-500">
-                  Last conversation: {contact.lastConversation}
+                  Last conversation: {stats.lastConversation}
                 </p>
               </Card>
             </div>
@@ -372,7 +389,7 @@ function ContactShowComponent() {
                   AI Conversation Simulator
                 </h3>
                 <p className="text-sm text-gray-500 mt-1">
-                  Practice your conversation with {contact.firstName} using AI
+                  Practice your conversation with {contact.first_name} using AI
                 </p>
               </div>
 
@@ -449,7 +466,7 @@ function ContactShowComponent() {
                 </div>
                 <p className="text-xs text-gray-500 text-center">
                   This is a simulated conversation. Responses are AI-generated
-                  based on {contact.firstName}'s communication style.
+                  based on {contact.first_name}'s communication style.
                 </p>
               </div>
             </Card>

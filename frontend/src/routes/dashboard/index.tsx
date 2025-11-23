@@ -33,11 +33,22 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { CardStack } from '@/components/CardStack'
 import { contactsData } from '@/data/contact-data'
-import { authStore } from '@/lib/schemas/stores/auth-store'
+import { authStore } from '@/lib/stores/auth-store'
+import { useContacts } from '@/hooks/contact-hook'
 
 export const Route = createFileRoute('/dashboard/')({
   component: RouteComponent,
 })
+
+interface ContactStats {
+  score: number
+  totalInteractions: number
+  lastContact: string
+  lastConversation: string
+  streak: number
+  responseTime: string
+  communicationBalance: string
+}
 
 function RouteComponent() {
   const state = useStore(authStore)
@@ -45,6 +56,7 @@ function RouteComponent() {
   const { user, token } = state
 
   const [sortBy, setSortBy] = useState('')
+  const { contacts } = useContacts()
 
   const mockStats = {
     totalRelationships: 24,
@@ -59,24 +71,6 @@ function RouteComponent() {
     { label: 'Longest Streak', value: 'streak' },
     { label: 'Recent Contact', value: 'lastContact' },
   ]
-
-  // Adapt contactsData to dashboard user format
-  const mockUsers = contactsData.map((c) => ({
-    id: c.id,
-    name: `${c.firstName} ${c.lastName}`,
-    interactions: c.totalInteractions,
-    healthScore: c.score,
-    lastContact: c.lastContact,
-    source: c.tags[2] || 'WhatsApp', // fallback
-    streak: 0, // Not available in data
-    responseTime: '< 1h', // Not available in data
-    communicationBalance: 'Balanced', // Not available in data
-    healthStatus:
-      c.score >= 85 ? 'Healthy' : c.score >= 60 ? 'Moderate' : 'Low',
-    avatar: c.avatar,
-    category: c.category,
-    tags: c.tags,
-  }))
 
   const mockTips: Array<{
     type: 'tip' | 'stat' | 'globalStat' | 'reminder'
@@ -123,8 +117,8 @@ function RouteComponent() {
     },
   ]
 
-  const sortedUsers = useMemo(() => {
-    if (!sortBy) return mockUsers
+  const sortedContacts = useMemo(() => {
+    if (!sortBy) return contacts
     return [...mockUsers].sort((a, b) => {
       const key = sortBy as keyof (typeof mockUsers)[0]
       const aValue = a[key]
@@ -261,7 +255,7 @@ function RouteComponent() {
 
         {/* User Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sortedUsers.map((user) => (
+          {sortedContacts.map((user) => (
             <Card
               key={user.id}
               className="p-6 bg-white hover:shadow-lg transition-shadow"
