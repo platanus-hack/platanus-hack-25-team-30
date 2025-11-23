@@ -122,45 +122,46 @@ function RouteComponent() {
     }
   }, [mergedContacts, contacts.length])
 
+  // Por mostrar utiliza un sample de los mergedContacts para cada dato
   const mockTips: Array<MockTipOrInsight> = [
     {
       type: 'tip',
       message:
-        'Remember to check in with Nicolás, it has been 3 weeks since your last contact.',
+        'Tus relaciones este último mes han mejorado en un 20%. ¡Sigue así!',
     },
     {
       type: 'stat',
       message:
-        'You have improved your average response time by 15% this month!',
+        'Has mejorado tu tiempo de respuesta promedio en un 15% este mes!',
     },
     {
       type: 'tip',
       message:
-        'Consider reaching out to Renata more often to improve your relationship health.',
+        `Tu relación con ${mergedContacts[Math.floor(Math.random() * mergedContacts.length)]?.contact.first_name} ha mejorado significativamente en las últimas semanas. ¡Buen trabajo!`,
     },
     {
       type: 'globalStat',
       message:
-        'Today is the day of friendship! Reach out to at least 3 contacts to celebrate.',
+        'Las personas han mejorado su puntaje de relación un 2% esta semana en promedio.',
     },
     {
       type: 'reminder',
-      message: "Today is Jose's birthday! Send him a message to wish him well.",
+      message: `¡Hoy es el cumpleaños de ${mergedContacts[Math.floor(Math.random() * mergedContacts.length)]?.contact.first_name}! No olvides enviarle tus mejores deseos.`,
     },
     {
       type: 'stat',
       message:
-        'Your current streak with Alonso is at 12 weeks - the longest this year! Keep it up!',
+        `Tu racha actual con ${mergedContacts[Math.floor(Math.random() * mergedContacts.length)]?.contact.first_name} es de 12 semanas, la más larga de este año. ¡Sigue así!`,
     },
     {
       type: 'tip',
       message:
-        'Try to balance who initiates conversations. Mutual effort strengthens relationships.',
+        'Intenta equilibrar quién inicia las conversaciones. El esfuerzo mutuo fortalece las relaciones.',
     },
     {
       type: 'globalStat',
       message:
-        'Studies show that regular check-ins every 2 weeks improve relationship satisfaction by 40%.',
+        'Los estudios muestran que las revisiones regulares cada 2 semanas mejoran la satisfacción en las relaciones en un 40%.',
     },
   ]
 
