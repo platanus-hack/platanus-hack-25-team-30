@@ -1,6 +1,7 @@
 import { API_BASE_URL } from './load-env'
 import type { Contact, CreateContactPayload } from '@/lib/types/contact-types'
 import type { Chat } from '@/lib/types/chats-types'
+import type { Stats } from '@/lib/types/stats-types'
 import { ContactSchema } from '@/lib/types/contact-types'
 
 export const contactsApi = {
@@ -80,6 +81,23 @@ export const contactsApi = {
     )
 
     if (!response.ok) throw new Error('Failed to fetch contact chats')
+
+    const data = await response.json()
+    return data
+  },
+
+  async getStats(
+    contactId: number,
+    userToken: string,
+  ): Promise<Stats> {
+    const response = await fetch(
+      `${API_BASE_URL}/contacts/${contactId}/stats`,
+      {
+        headers: { 'User-Token': userToken },
+      },
+    )
+
+    if (!response.ok) throw new Error('Failed to fetch contact stats')
 
     const data = await response.json()
     return data
