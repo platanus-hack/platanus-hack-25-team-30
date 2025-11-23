@@ -215,7 +215,7 @@ function LoginComponent() {
 
                 <Button
                   type="submit"
-                  className="w-full transition-all duration-300 hover:scale-105"
+                  className="w-full cursor-pointer transition-all duration-300 hover:scale-105"
                   disabled={isLoggingIn}
                   style={{
                     backgroundColor: isRegister
@@ -240,7 +240,7 @@ function LoginComponent() {
                 <button
                   type="button"
                   onClick={toggleMode}
-                  className="text-[var(--app-primary)] font-semibold hover:underline transition-all duration-300"
+                  className="text-(--app-primary) cursor-pointer font-semibold hover:underline transition-all duration-300"
                   disabled={isLoggingIn}
                 >
                   {isRegister ? 'Iniciar sesión' : 'Regístrate'}
