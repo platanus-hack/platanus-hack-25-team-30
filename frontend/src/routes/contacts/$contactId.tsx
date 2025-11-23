@@ -8,9 +8,7 @@ import {
   Edit,
   Gift,
   List,
-  Mail,
   MessageCircle,
-  Phone,
   Sparkles,
   Trash2,
   TrendingUp,
@@ -24,6 +22,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { ContactForm } from '@/components/contacts/ContactForm'
 import { useContacts } from '@/hooks/contact-hook'
 import { useContactPhoto } from '@/hooks/contact-photo-hook'
+import { useContactChats } from '@/hooks/contact-chats-hook'
 
 export const Route = createFileRoute('/contacts/$contactId')({
   component: ContactShowComponent,
@@ -41,7 +40,12 @@ function ContactShowComponent() {
   const { contactId } = Route.useParams()
   const contactIdNum = parseInt(contactId, 10)
   const { contacts } = useContacts()
+  const { contactChats } = useContactChats(contactIdNum)
   const navigate = useNavigate()
+
+  const sortedChats = [...contactChats].sort((a, b) =>
+    new Date(b.time).getTime() - new Date(a .time).getTime()
+  )
 
   const contact = contacts.find((c) => c.id === contactIdNum)
 
@@ -161,9 +165,22 @@ function ContactShowComponent() {
         return 'bg-gray-100 text-gray-800'
     }
   }
-  console.log('Rendering contact:', contact)
-  console.log('Avatar URL:', avatarUrl)
 
+  const formatMessageTime = (isoString: string) => {
+    const date = new Date(isoString)
+    const time = date.toLocaleTimeString('es-ES', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+    })
+    const dateStr = date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).split('/').reverse().join('-')
+    
+    return `${time} ${dateStr}`
+  }
+  
   return (
     <div className="min-h-screen bg-[#f5f3f0] p-8">
       <div className="max-w-5xl mx-auto">
@@ -491,65 +508,25 @@ function ContactShowComponent() {
           <TabsContent value="chats" className="space-y-6">
             <Card className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Recent Conversations
+                Mensajes Recientes
               </h3>
               <div className="space-y-4">
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <MessageCircle className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm font-medium text-gray-900">
-                        WhatsApp
+                {sortedChats.slice(0, 5).map((chat) => (
+                  <div key={chat.id} className="p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <MessageCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-sm font-medium text-gray-900 capitalize">
+                          {chat.source}
+                        </span>
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        {formatMessageTime(chat.time)}
                       </span>
                     </div>
-                    <span className="text-xs text-gray-500">2 days ago</span>
+                    <p className="text-sm text-gray-700">{chat.message_text}</p>
                   </div>
-                  <p className="text-sm text-gray-700">
-                    "Hey! How have you been? Want to grab coffee this weekend?"
-                  </p>
-                </div>
-
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-green-600" />
-                      <span className="text-sm font-medium text-gray-900">
-                        Email
-                      </span>
-                    </div>
-                    <span className="text-xs text-gray-500">1 week ago</span>
-                  </div>
-                  <p className="text-sm text-gray-700">
-                    "Thanks for your help with the project. Really appreciate
-                    it!"
-                  </p>
-                </div>
-
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Phone className="w-4 h-4 text-purple-600" />
-                      <span className="text-sm font-medium text-gray-900">
-                        Phone Call
-                      </span>
-                    </div>
-                    <span className="text-xs text-gray-500">2 weeks ago</span>
-                  </div>
-                  <p className="text-sm text-gray-700">
-                    Call duration: 45 minutes - Discussed weekend plans
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 flex gap-3">
-                <Button className="flex-1">
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  New Message
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  <Phone className="w-4 h-4 mr-2" />
-                  Call
-                </Button>
+                ))}
               </div>
             </Card>
           </TabsContent>
