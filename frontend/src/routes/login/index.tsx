@@ -106,9 +106,9 @@ function LoginComponent() {
               />
             </svg>
           </div>
-          <h1 className="text-4xl font-bold mb-4">Talk2Me</h1>
+          <h1 className="text-4xl font-bold mb-4">DeepBonds</h1>
           <p className="text-xl text-white/90">
-            Manage your relationships with ease
+            Gestiona tus relaciones con facilidad
           </p>
         </div>
       </div>
@@ -128,18 +128,18 @@ function LoginComponent() {
           <div className="relative">
             <div className="text-center mb-6">
               <h3 className="text-3xl font-bold mb-2">
-                {isRegister ? 'Create Account' : 'Welcome Back'}
+                {isRegister ? 'Crear Cuenta' : 'Bienvenido de nuevo'}
               </h3>
               <p className="text-gray-600">
                 {isRegister
-                  ? 'Sign up to get started'
-                  : 'Login to access your dashboard'}
+                  ? 'Regístrate para comenzar'
+                  : 'Inicia sesión para acceder a tu panel'}
               </p>
             </div>
 
             {search.redirect && !isRegister && (
               <p className="text-red-500 text-center mb-4 text-sm">
-                You need to login to access this page.
+                Debes iniciar sesión para acceder a esa página.
               </p>
             )}
 
@@ -162,51 +162,50 @@ function LoginComponent() {
                       htmlFor="username-input"
                       className="text-sm font-medium"
                     >
-                      Username
+                      Nombre de usuario
                     </label>
                     <Input
                       id="username-input"
                       name="username"
-                      placeholder="Enter your username"
+                      placeholder="Ingresa tu nombre de usuario"
                       type="text"
                       required
                       className="transition-all duration-300"
                     />
                   </div>
 
-                  {/* Email field - only for register */}
-                  <div
-                    className={`space-y-2 transition-all duration-500 overflow-hidden ${
-                      isRegister ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'
-                    }`}
-                  >
-                    <label
-                      htmlFor="email-input"
-                      className="text-sm font-medium"
+                  {isRegister && (
+                    <div
+                      className={`space-y-2 transition-all duration-500`}
                     >
-                      Email
-                    </label>
-                    <Input
-                      id="email-input"
-                      name="email"
-                      placeholder="Enter your email"
-                      type="email"
-                      required={isRegister}
-                      className="transition-all duration-300"
-                    />
-                  </div>
+                      <label
+                        htmlFor="email-input"
+                        className="text-sm font-medium"
+                      >
+                        Email
+                      </label>
+                      <Input
+                        id="email-input"
+                        name="email"
+                        placeholder="Ingresa tu correo electrónico"
+                        type="email"
+                        required={isRegister}
+                        className="transition-all duration-300"
+                      />
+                    </div>
+                  )}
 
                   <div className="space-y-2">
                     <label
                       htmlFor="password-input"
                       className="text-sm font-medium"
                     >
-                      Password
+                      Contraseña
                     </label>
                     <Input
                       id="password-input"
                       name="password"
-                      placeholder="Enter your password"
+                      placeholder="Ingresa tu contraseña"
                       type="password"
                       required
                       className="transition-all duration-300"
@@ -227,8 +226,8 @@ function LoginComponent() {
                   {isLoggingIn
                     ? 'Please wait...'
                     : isRegister
-                      ? 'Create Account'
-                      : 'Login'}
+                      ? 'Crear Cuenta'
+                      : 'Iniciar Sesión'}
                 </Button>
               </fieldset>
             </form>
@@ -236,15 +235,15 @@ function LoginComponent() {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 {isRegister
-                  ? 'Already have an account?'
-                  : "Don't have an account?"}{' '}
+                  ? '¿Ya tienes una cuenta?'
+                  : '¿No tienes una cuenta?'}{' '}
                 <button
                   type="button"
                   onClick={toggleMode}
                   className="text-[var(--app-primary)] font-semibold hover:underline transition-all duration-300"
                   disabled={isLoggingIn}
                 >
-                  {isRegister ? 'Login here' : 'Sign up here'}
+                  {isRegister ? 'Iniciar sesión' : 'Regístrate'}
                 </button>
               </p>
             </div>
