@@ -1,4 +1,4 @@
-import { Filter, Plus, Search } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import { useStore } from '@tanstack/react-store'
 import { useState } from 'react'
 import { ContactForm } from './ContactForm'
@@ -39,13 +39,6 @@ export function ContactsHeader() {
               className="pl-10 bg-white border-gray-200"
             />
           </div>
-          <Button
-            variant="outline"
-            className="text-gray-600 border-gray-200 hover:bg-gray-50"
-          >
-            <Filter className="h-4 w-4 mr-2" />
-            Filtrar
-          </Button>
         </div>
       </div>
 
