@@ -15,7 +15,7 @@ export function ImportConversations() {
           Importar Conversaciones
         </h1>
         <p className="text-gray-600">
-          Importa el historial de chat desde WhatsApp, Telegram, o manualmente
+          Importa el historial de chat desde WhatsApp
         </p>
       </div>
 
@@ -33,23 +33,22 @@ export function ImportConversations() {
             <MessageCircle size={20} />
             WhatsApp
           </button>
-          <button
-            onClick={() => setActiveTab('telegram')}
-            className={`flex-1 px-6 py-4 font-medium transition-colors flex items-center justify-center gap-2 ${
-              activeTab === 'telegram'
-                ? 'text-gray-900 border-b-2 border-gray-900'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            <Send size={20} />
-            Telegram
-          </button>
+          {/* <button */}
+          {/*   onClick={() => setActiveTab('telegram')} */}
+          {/*   className={`flex-1 px-6 py-4 font-medium transition-colors flex items-center justify-center gap-2 ${ */}
+          {/*     activeTab === 'telegram' */}
+          {/*       ? 'text-gray-900 border-b-2 border-gray-900' */}
+          {/*       : 'text-gray-500 hover:text-gray-700' */}
+          {/*   }`} */}
+          {/* > */}
+          {/*   <Send size={20} /> */}
+          {/*   Telegram */}
+          {/* </button> */}
         </div>
 
         {/* Tab Content */}
         <div className="p-8">
           {activeTab === 'whatsapp' && <WhatsAppImport />}
-          {activeTab === 'telegram' && <TelegramImport />}
         </div>
       </div>
     </div>
