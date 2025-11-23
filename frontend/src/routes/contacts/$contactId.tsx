@@ -177,7 +177,7 @@ function ContactShowComponent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f3f0] p-8">
+    <div className="min-h-screen bg-(--app-secondary) p-8">
       <div className="max-w-5xl mx-auto">
         <Button
           variant="ghost"

@@ -48,12 +48,13 @@ code {
   /* Custom App Colors */
   --app-primary: rgb(239, 90, 111);
   /* Coral Red */
-  --app-secondary: rgb(255, 241, 219);
+  --app-secondary: rgb(236, 236, 236);
   /* Warm Cream */
   --app-base: rgb(212, 189, 172);
   /* Soft Taupe */
   --app-neutral: rgb(83, 100, 147);
   /* Deep Blue */
+  --app-header: rgb(255, 154, 123);
 
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.141 0.005 285.823);

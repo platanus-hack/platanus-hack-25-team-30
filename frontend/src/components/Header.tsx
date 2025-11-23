@@ -32,7 +32,8 @@ export default function Header() {
 
   return (
     <>
-      <header className="p-4 flex items-center justify-between bg-white border-b border-gray-200 shadow-sm">
+      <header className="p-4 flex items-center justify-between border-b border-gray-200 shadow-sm bg-[var(--app-header)] sticky top-0 z-30">
+        {/* Left - Logo and Menu Button */}
         <div className="flex items-center">
           <button
             onClick={() => setIsOpen(true)}
