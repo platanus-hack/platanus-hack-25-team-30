@@ -1,13 +1,11 @@
 from datetime import datetime
 from typing import Annotated, Optional
 
-from fastapi import Depends
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from app.db import Record, User
 from app.dependencies import get_user_token_header
-
-from .main import router
 
 
 class ContactStats(BaseModel):
@@ -20,7 +18,10 @@ class ContactStats(BaseModel):
     communication_balance: Optional[float]
 
 
-@router.get("/{person_id}/stats", response_model=ContactStats)
+router = APIRouter(prefix="/{person_id}/stats", tags=["stats"])
+
+
+@router.get("", response_model=ContactStats)
 async def get_person(
     person_id: int,
     user: Annotated[User, Depends(get_user_token_header)],

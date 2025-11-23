@@ -2,14 +2,14 @@ import asyncio
 from datetime import date
 from typing import Annotated, List, Literal, Optional
 
-from fastapi import Depends, File, HTTPException, Response
+from fastapi import APIRouter, Depends, File, HTTPException, Response
 from pydantic import BaseModel, Field
 
 from app.db import Person as PersonModel
 from app.db import User
 from app.dependencies import get_user_token_header
 
-from .main import router
+router = APIRouter()
 
 relationship_types = (
     "Familia",
@@ -135,10 +135,7 @@ async def get_person_photo(
     if not person:
         raise HTTPException(status_code=404, detail="Person not found")
 
-    print("sdasd")
-
     if not person.photo:
-        print("Returning empty")
         raise HTTPException(status_code=204, detail="Person has no photo")
 
     return Response(
