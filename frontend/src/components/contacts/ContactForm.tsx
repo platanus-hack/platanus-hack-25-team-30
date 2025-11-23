@@ -13,29 +13,30 @@ import { useContacts } from '@/hooks/contact-hook'
 interface ContactFormProps {
   onClose: () => void
   contact?: Contact
+  avatar?: File
 }
 
-export function ContactForm({ onClose, contact }: ContactFormProps) {
+export function ContactForm({ onClose, contact, avatar }: ContactFormProps) {
   const { createContact, updateContact, isCreating, isUpdating } = useContacts()
 
   const isEditMode = !!contact
 
   const [selectedFile, setSelectedFile] = useState<File | undefined>(
-    contact?.avatar || undefined,
+    avatar,
   )
 
   const [tagInputValue, setTagInputValue] = useState('')
 
   const form = useForm({
     defaultValues: {
-      avatar: contact?.avatar || undefined,
-      firstName: contact?.firstName || '',
-      lastName: contact?.lastName || '',
-      relationshipType: (contact?.category as any) || 'Familia',
+      avatar: avatar || undefined,
+      firstName: contact?.first_name || '',
+      lastName: contact?.last_name || '',
+      relationshipType: contact?.relationship_type || 'Familia',
       email: contact?.email || '',
       phone: contact?.phone || '',
       birthday: contact?.birthday || '',
-      personalityTags: contact?.tags || [],
+      personalityTags: contact?.personality_tags || [],
       notes: contact?.notes || '',
     },
     onSubmit: ({ value }) => {
