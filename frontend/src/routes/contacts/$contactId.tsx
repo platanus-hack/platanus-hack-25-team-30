@@ -12,6 +12,9 @@ import {
   Sparkles,
   Trash2,
   TrendingUp,
+  Wifi,
+  WifiOff,
+  Loader2,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from '@tanstack/react-store'
@@ -25,6 +28,7 @@ import { useContacts } from '@/hooks/contact-hook'
 import { useContactPhoto } from '@/hooks/contact-photo-hook'
 import { useContactChats } from '@/hooks/contact-chats-hook'
 import { useContactStats } from '@/hooks/contact-stats-hook'
+import { useWebSocketChat } from '@/hooks/useWebSocketChat'
 import { authStore } from '@/lib/stores/auth-store'
 import { formatDate } from '@/lib/utils'
 
@@ -53,21 +57,19 @@ function ContactShowComponent() {
   const { data: photoData } = useContactPhoto(contactIdNum, token)
   const avatarUrl = photoData ? URL.createObjectURL(photoData) : null
 
-  const mockInitialMessage = `Oye cabro wn, donde has estado? En lo prado???!!! Andate inmediatamente de esta casa porfa.`
-  const mockAnswers = [
-    'Lo que hiciste fue una falta grave, no puedo creer que me hayas mentido así.',
-    'Necesitamos hablar seriamente sobre lo que pasó la última vez.',
-    'Siento que nuestra relación ha cambiado y no sé cómo manejarlo.',
-    '¿Por qué nunca me dices la verdad sobre lo que sientes?',
-    'Estoy muy decepcionado/a por tus acciones recientes.',
-  ]
-
-  const [messages, setMessages] = useState<
-    Array<{ from: 'user' | 'contact'; text: string; isLoading?: boolean }>
-  >([{ from: 'contact', text: mockInitialMessage }])
+  // WebSocket chat for AI simulation
+  const {
+    messages,
+    sendMessage,
+    connectionStatus,
+    error: wsError,
+    resetChat,
+  } = useWebSocketChat({
+    personId: contactIdNum,
+    token,
+  })
 
   const [input, setInput] = useState('')
-  const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -79,31 +81,9 @@ function ContactShowComponent() {
   }, [messages])
 
   const handleSend = () => {
-    if (!input.trim() || loading) return
-
-    const userMessage = input.trim()
+    if (!input.trim() || connectionStatus !== 'connected') return
+    sendMessage(input.trim())
     setInput('')
-    setMessages((prev) => [...prev, { from: 'user', text: userMessage }])
-    setLoading(true)
-
-    // Add loading indicator
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { from: 'contact', text: '', isLoading: true },
-      ])
-    }, 500)
-
-    // Simulate contact response
-    setTimeout(() => {
-      const randomAnswer =
-        mockAnswers[Math.floor(Math.random() * mockAnswers.length)]
-      setMessages((prev) => {
-        const filtered = prev.filter((msg) => !msg.isLoading)
-        return [...filtered, { from: 'contact', text: randomAnswer }]
-      })
-      setLoading(false)
-    }, 2000)
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -112,6 +92,8 @@ function ContactShowComponent() {
       handleSend()
     }
   }
+
+  const isLoading = messages.some((msg) => msg.isLoading)
 
   if (!contact) {
     return (
@@ -409,17 +391,62 @@ function ContactShowComponent() {
           <TabsContent value="simulation" className="space-y-6">
             <Card className="p-6 bg-white">
               <div className="mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-purple-600" />
-                  AI Conversation Simulator
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-purple-600" />
+                    Simulador de Conversación IA
+                  </h3>
+                  {/* Connection Status Indicator */}
+                  <div className="flex items-center gap-2">
+                    {connectionStatus === 'connected' && (
+                      <Badge className="bg-green-100 text-green-700 flex items-center gap-1">
+                        <Wifi className="w-3 h-3" />
+                        Conectado
+                      </Badge>
+                    )}
+                    {connectionStatus === 'connecting' && (
+                      <Badge className="bg-yellow-100 text-yellow-700 flex items-center gap-1">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        Conectando...
+                      </Badge>
+                    )}
+                    {(connectionStatus === 'disconnected' || connectionStatus === 'error') && (
+                      <Badge className="bg-red-100 text-red-700 flex items-center gap-1">
+                        <WifiOff className="w-3 h-3" />
+                        Desconectado
+                      </Badge>
+                    )}
+                  </div>
+                </div>
                 <p className="text-sm text-gray-500 mt-1">
-                  Practice your conversation with {contact.first_name} using AI
+                  Practica tu conversación con {contact.first_name} usando IA
                 </p>
               </div>
 
+              {/* Error Message */}
+              {wsError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-700">{wsError}</p>
+                </div>
+              )}
+
               {/* Chat Container */}
               <div className="h-96 overflow-y-auto p-4 bg-[#f5f3f0] rounded-lg space-y-3 mb-4">
+                {messages.length === 0 && connectionStatus === 'connected' && (
+                  <div className="flex items-center justify-center h-full">
+                    <p className="text-gray-500 text-sm">
+                      Envía un mensaje para comenzar la conversación con {contact.first_name}
+                    </p>
+                  </div>
+                )}
+                {messages.length === 0 && connectionStatus === 'connecting' && (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="flex items-center gap-2 text-gray-500">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Conectando con el simulador...</span>
+                    </div>
+                  </div>
+                )}
                 {messages.map((msg, i) => (
                   <div
                     key={i}
@@ -459,39 +486,34 @@ function ContactShowComponent() {
               {/* Input Area */}
               <div className="space-y-3">
                 <Textarea
-                  placeholder="Type your message..."
+                  placeholder="Escribe tu mensaje..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyPress}
                   className="resize-none bg-white"
                   rows={3}
+                  disabled={connectionStatus !== 'connected'}
                 />
                 <div className="flex items-center gap-2">
                   <Button
                     onClick={handleSend}
-                    disabled={loading || !input.trim()}
+                    disabled={isLoading || !input.trim() || connectionStatus !== 'connected'}
                     className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
                   >
                     <MessageCircle className="w-4 h-4 mr-2" />
-                    {loading ? 'Sending...' : 'Send Message'}
+                    {isLoading ? 'Enviando...' : 'Enviar Mensaje'}
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      setMessages([
-                        { from: 'contact', text: mockInitialMessage },
-                      ])
-                      setInput('')
-                      setLoading(false)
-                    }}
+                    onClick={resetChat}
                     className="px-4"
                   >
-                    Reset
+                    Reiniciar
                   </Button>
                 </div>
                 <p className="text-xs text-gray-500 text-center">
-                  This is a simulated conversation. Responses are AI-generated
-                  based on {contact.first_name}'s communication style.
+                  Esta es una conversación simulada. Las respuestas son generadas por IA
+                  basándose en el estilo de comunicación de {contact.first_name}.
                 </p>
               </div>
             </Card>

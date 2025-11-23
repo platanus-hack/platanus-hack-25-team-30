@@ -31,9 +31,7 @@ class ConversationTopicAnalysis(BaseModel):
     topic: str = Field(
         description="Main topic or theme of the recent conversation in 2-5 words (in Spanish)"
     )
-    summary: str = Field(
-        description="Brief one-sentence summary of what was discussed"
-    )
+    summary: str = Field(description="Brief one-sentence summary of what was discussed")
 
 
 def get_instructor_client() -> instructor.Instructor:
@@ -56,7 +54,7 @@ def create_person_system_prompt(
     history_text = ""
     if message_history:
         history_text = f"\n\nHistorial de conversaciones anteriores entre tu ({first_name}) y {user_name}:\n"
-        for msg in message_history[-1000:]:  # Last 50 messages for context
+        for msg in message_history[-250:]:  # Last 50 messages for context
             sender = msg["sent_from"]
             history_text += f"- Sent from ({sender}): {msg['message_text']}\n"
 
