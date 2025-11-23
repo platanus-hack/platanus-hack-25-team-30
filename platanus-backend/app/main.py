@@ -8,13 +8,14 @@ from .db import TORTOISE_ORM
 from .dependencies import get_token_header, get_user_token_header
 from .internal import admin
 from .routers import users
+from .routers.chat import router as chat_router
 from .routers.contacts import create as persons
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
-app = FastAPI(dependencies=[Depends(get_user_token_header)])
+app = FastAPI(dependencies=[])
 
 origins = [
     "http://localhost",
@@ -31,6 +32,7 @@ app.add_middleware(
 
 app.include_router(users.router)
 app.include_router(persons.router)
+app.include_router(chat_router)
 app.include_router(
     admin.router,
     prefix="/admin",
