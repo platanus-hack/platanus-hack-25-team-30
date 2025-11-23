@@ -1,4 +1,4 @@
-import { useForm } from '@tanstack/react-form'
+import { useForm, useStore } from '@tanstack/react-form'
 import { AlertCircle, Upload, X } from 'lucide-react'
 import { useState } from 'react'
 import type { Contact } from '@/lib/types/contact-types'
@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import * as ShadcnSelect from '@/components/ui/select'
 import { CreateContactSchema } from '@/lib/schemas/contact-schema'
 import { useContacts } from '@/hooks/contact-hook'
+import { authStore } from '@/lib/stores/auth-store'
 
 interface ContactFormProps {
   onClose: () => void
@@ -17,13 +18,15 @@ interface ContactFormProps {
 }
 
 export function ContactForm({ onClose, contact, avatar }: ContactFormProps) {
-  const { createContact, updateContact, isCreating, isUpdating } = useContacts()
+  const state = useStore(authStore)
+  if (!state) return null
+  const { token } = state
+  const { createContact, updateContact, isCreating, isUpdating } =
+    useContacts(token)
 
   const isEditMode = !!contact
 
-  const [selectedFile, setSelectedFile] = useState<File | undefined>(
-    avatar,
-  )
+  const [selectedFile, setSelectedFile] = useState<File | undefined>(avatar)
 
   const [tagInputValue, setTagInputValue] = useState('')
 
@@ -597,7 +600,7 @@ export function ContactForm({ onClose, contact, avatar }: ContactFormProps) {
               Cancelar
             </Button>
             <form.Subscribe
-              selector={(state) => ({ isSubmitting: state.isSubmitting })}
+              selector={(fState) => ({ isSubmitting: fState.isSubmitting })}
             >
               {({ isSubmitting }) => (
                 <Button

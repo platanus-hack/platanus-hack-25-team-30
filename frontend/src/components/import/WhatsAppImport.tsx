@@ -13,8 +13,8 @@ export function WhatsAppImport() {
   const [selectedContactId, setSelectedContactId] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
-  const { contacts, isLoading: isLoadingContacts } = useContacts()
-  const importMutation = useImportWhatsApp()
+  const { contacts, isLoading: isLoadingContacts } = useContacts(token)
+  const importMutation = useImportWhatsApp(token)
 
   const validateAndExtractFile = async (file: File): Promise<File | null> => {
     setFileError(null)
@@ -168,7 +168,7 @@ export function WhatsAppImport() {
             <option value="">¿Con quién es este chat?</option>
             {contacts.map((contact) => (
               <option key={contact.id} value={contact.id}>
-                {contact.firstName} {contact.lastName}
+                {contact.first_name} {contact.last_name}
               </option>
             ))}
           </select>

@@ -24,7 +24,7 @@ import { Card } from '@/components/ui/card'
 export default function Header() {
   const state = useStore(authStore)
   if (!state) return null
-  const { user, token } = state
+  const { user } = state
 
   const [isOpen, setIsOpen] = useState(false)
   const [isUserOpen, setIsUserOpen] = useState(false)

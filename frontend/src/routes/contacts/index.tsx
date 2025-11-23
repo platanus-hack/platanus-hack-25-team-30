@@ -5,13 +5,18 @@ import { ContactsHeader } from '@/components/contacts/ContactsHeader'
 import { ContactsGrid } from '@/components/contacts/ContactsGrid'
 import { searchContactStore } from '@/lib/stores/contact-store'
 import { useContacts } from '@/hooks/contact-hook'
+import { authStore } from '@/lib/stores/auth-store'
 
 export const Route = createFileRoute('/contacts/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { contacts } = useContacts()
+  const authState = useStore(authStore)
+  if (!authState) return null
+  const { token } = authState
+
+  const { contacts } = useContacts(token)
   const searchValue = useStore(searchContactStore, (state) => state.searchValue)
 
   const filteredContacts = useMemo(() => {

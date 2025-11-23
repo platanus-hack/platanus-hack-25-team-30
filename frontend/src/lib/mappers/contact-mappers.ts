@@ -1,5 +1,5 @@
 import type { CreateContactData } from '@/lib/schemas/contact-schema'
-import type { Contact, CreateContactPayload } from '@/lib/types/contact-types'
+import type { CreateContactPayload } from '@/lib/types/contact-types'
 
 export function createContactPayload(
   data: CreateContactData,
@@ -47,23 +47,4 @@ export function updateContactPayload(
   }
 
   return payload
-}
-
-export function getContact(apiResponse: any): Contact {
-  return {
-    id: apiResponse.id,
-    firstName: apiResponse.first_name,
-    lastName: apiResponse.last_name,
-    avatar: apiResponse.avatar,
-    category: apiResponse.relationship_type,
-    score: apiResponse.score,
-    email: apiResponse.email,
-    phone: apiResponse.phone,
-    birthday: apiResponse.birthday,
-    lastContact: apiResponse.last_contact,
-    lastConversation: apiResponse.last_conversation,
-    totalInteractions: apiResponse.total_interactions,
-    tags: apiResponse.personality_tags,
-    notes: apiResponse.notes,
-  }
 }

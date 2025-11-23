@@ -14,6 +14,7 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useStore } from '@tanstack/react-store'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -23,6 +24,7 @@ import { ContactForm } from '@/components/contacts/ContactForm'
 import { useContacts } from '@/hooks/contact-hook'
 import { useContactPhoto } from '@/hooks/contact-photo-hook'
 import { useContactChats } from '@/hooks/contact-chats-hook'
+import { authStore } from '@/lib/stores/auth-store'
 
 export const Route = createFileRoute('/contacts/$contactId')({
   component: ContactShowComponent,
@@ -36,20 +38,23 @@ interface PersonStats {
 }
 
 function ContactShowComponent() {
+  const state = useStore(authStore)
+  if (!state) return null
+  const { token } = state
   const [showEditForm, setShowEditForm] = useState(false)
   const { contactId } = Route.useParams()
   const contactIdNum = parseInt(contactId, 10)
-  const { contacts } = useContacts()
   const { contactChats } = useContactChats(contactIdNum)
+  const { contacts } = useContacts(token)
   const navigate = useNavigate()
 
-  const sortedChats = [...contactChats].sort((a, b) =>
-    new Date(b.time).getTime() - new Date(a .time).getTime()
+  const sortedChats = [...contactChats].sort(
+    (a, b) => new Date(b.time).getTime() - new Date(a.time).getTime(),
   )
 
   const contact = contacts.find((c) => c.id === contactIdNum)
 
-  const { data: photoData } = useContactPhoto(contactIdNum)
+  const { data: photoData } = useContactPhoto(contactIdNum, token)
   const avatarUrl = photoData ? URL.createObjectURL(photoData) : null
   const stats: PersonStats = {
     score: 5,
@@ -168,19 +173,23 @@ function ContactShowComponent() {
 
   const formatMessageTime = (isoString: string) => {
     const date = new Date(isoString)
-    const time = date.toLocaleTimeString('es-ES', { 
-      hour: '2-digit', 
+    const time = date.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
       minute: '2-digit',
     })
-    const dateStr = date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).split('/').reverse().join('-')
-    
+    const dateStr = date
+      .toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      })
+      .split('/')
+      .reverse()
+      .join('-')
+
     return `${time} ${dateStr}`
   }
-  
+
   return (
     <div className="min-h-screen bg-[#f5f3f0] p-8">
       <div className="max-w-5xl mx-auto">
@@ -469,7 +478,7 @@ function ContactShowComponent() {
                   placeholder="Type your message..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onKeyDown={handleKeyPress}
                   className="resize-none bg-white"
                   rows={3}
                 />

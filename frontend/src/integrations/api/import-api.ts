@@ -25,8 +25,6 @@ export const importApi = {
       const error = await response.json()
       throw new Error(error.message || 'Failed to import WhatsApp chat')
     }
-
-    return response.json()
   },
 
   async importTelegram(contactId: string, file: File): Promise<void> {
@@ -43,7 +41,5 @@ export const importApi = {
       const error = await response.json()
       throw new Error(error.message || 'Failed to import Telegram chat')
     }
-
-    return response.json()
   },
 }

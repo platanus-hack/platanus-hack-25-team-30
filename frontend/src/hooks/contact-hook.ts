@@ -6,20 +6,20 @@ import {
   updateContactPayload,
 } from '@/lib/mappers/contact-mappers'
 
-export function useContacts() {
+export function useContacts(userToken: string) {
   const queryClient = useQueryClient()
 
   const { data: contacts = [], isLoading } = useQuery({
     queryKey: ['contacts'],
-    queryFn: contactsApi.getAll,
+    queryFn: () => contactsApi.getAll(userToken),
   })
 
   const createMutation = useMutation({
     mutationFn: async (data: CreateContactData) => {
       const payload = createContactPayload(data)
-      const contact = await contactsApi.create(payload)
+      const contact = await contactsApi.create(payload, userToken)
       if (data.avatar) {
-        return await contactsApi.assignPhoto(contact.id, data.avatar)
+        return await contactsApi.assignPhoto(contact.id, data.avatar, userToken)
       }
       return contact
     },
@@ -31,7 +31,7 @@ export function useContacts() {
   const updateMutation = useMutation({
     mutationFn: (data: { id: number; updates: Partial<CreateContactData> }) => {
       const payload = updateContactPayload(data.updates)
-      return contactsApi.update(data.id, payload)
+      return contactsApi.update(data.id, payload, userToken)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] })
@@ -39,7 +39,7 @@ export function useContacts() {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: contactsApi.delete,
+    mutationFn: (id: number) => contactsApi.delete(id, userToken),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] })
     },

@@ -1,17 +1,22 @@
 import { useState } from 'react'
 import { AlertCircle, CheckCircle2, Upload } from 'lucide-react'
+import { useStore } from '@tanstack/react-store'
 import { Button } from '@/components/ui/button'
 import { useImportTelegram } from '@/hooks/import-hook'
 import { useContacts } from '@/hooks/contact-hook'
+import { authStore } from '@/lib/stores/auth-store'
 
 export function TelegramImport() {
+  const state = useStore(authStore)
+  if (!state) return null
+  const { token } = state
   const [selectedContactId, setSelectedContactId] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const { contacts, isLoading: isLoadingContacts } = useContacts()
+  const { contacts, isLoading: isLoadingContacts } = useContacts(token)
   const importMutation = useImportTelegram()
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+    if (e.target.files) {
       setSelectedFile(e.target.files[0])
     }
   }
@@ -86,7 +91,7 @@ export function TelegramImport() {
             <div>
               <p className="font-medium text-red-900">Error al importar</p>
               <p className="text-sm text-red-700 mt-1">
-                {importMutation.error?.message ||
+                {importMutation.error.message ||
                   'Ocurrió un error al procesar el archivo'}
               </p>
             </div>
@@ -107,7 +112,7 @@ export function TelegramImport() {
             <option value="">¿Con quién es este chat?</option>
             {contacts.map((contact) => (
               <option key={contact.id} value={contact.id}>
-                {contact.firstName} {contact.lastName}
+                {contact.first_name} {contact.last_name}
               </option>
             ))}
           </select>

@@ -1,43 +1,48 @@
+import { API_BASE_URL } from './load-env'
 import type { Contact, CreateContactPayload } from '@/lib/types/contact-types'
 import type { Chat } from '@/lib/types/chats-types'
 import { ContactSchema } from '@/lib/types/contact-types'
-import { getContact } from '@/lib/mappers/contact-mappers'
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 export const contactsApi = {
-  async create(payload: CreateContactPayload): Promise<Contact> {
+  async create(
+    payload: CreateContactPayload,
+    userToken: string,
+  ): Promise<Contact> {
     const response = await fetch(`${API_BASE_URL}/contacts`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'user-token': 'test' },
+      headers: { 'Content-Type': 'application/json', 'User-Token': userToken },
       body: JSON.stringify(payload),
     })
 
     if (!response.ok) throw new Error('Failed to create contact')
 
     const data = await response.json()
-    return getContact(data)
+    const parseContact = ContactSchema.parse(data)
+    return parseContact
   },
 
-  async assignPhoto(id: number, avatarFile: File): Promise<Contact> {
+  async assignPhoto(
+    id: number,
+    avatarFile: File,
+    userToken: string,
+  ): Promise<null> {
     const formData = new FormData()
     formData.append('person_photo', avatarFile)
 
     const response = await fetch(`${API_BASE_URL}/contacts/${id}/photo`, {
       method: 'POST',
-      headers: { 'user-token': 'test' },
+      headers: { 'User-Token': userToken },
       body: formData,
     })
 
     if (!response.ok) throw new Error('Failed to assign photo to contact')
 
-    const data = await response.json()
-    return getContact(data)
+    return null
   },
 
-  async getAll(): Promise<Array<Contact>> {
+  async getAll(userToken: string): Promise<Array<Contact>> {
     const response = await fetch(`${API_BASE_URL}/contacts`, {
-      headers: { 'user-token': 'test' },
+      headers: { 'User-Token': userToken },
     })
     if (!response.ok) throw new Error('Failed to fetch contacts')
 
@@ -48,11 +53,11 @@ export const contactsApi = {
     return parsedContacts
   },
 
-  async getPhoto(contactId: number): Promise<Blob | null> {
+  async getPhoto(contactId: number, userToken: string): Promise<Blob | null> {
     const response = await fetch(
       `${API_BASE_URL}/contacts/${contactId}/photo`,
       {
-        headers: { 'user-token': 'test' },
+        headers: { 'User-Token': userToken },
       },
     )
 
@@ -66,11 +71,11 @@ export const contactsApi = {
     return response.blob()
   },
 
-  async getChats(contactId: number): Promise<Array<Chat>> {
+  async getChats(contactId: number, userToken: string): Promise<Array<Chat>> {
     const response = await fetch(
       `${API_BASE_URL}/contacts/${contactId}/records`,
       {
-        headers: { 'user-token': 'test' },
+        headers: { 'User-Token': userToken },
       },
     )
 
@@ -80,33 +85,44 @@ export const contactsApi = {
     return data
   },
 
-  async getById(id: string): Promise<Contact> {
-    const response = await fetch(`${API_BASE_URL}/contacts/${id}`)
+  async getById(id: string, userToken: string): Promise<Contact> {
+    const response = await fetch(`${API_BASE_URL}/contacts/${id}`, {
+      method: 'GET',
+      headers: { 'User-Token': userToken },
+    })
     if (!response.ok) throw new Error('Failed to fetch contact')
 
     const data = await response.json()
-    return getContact(data)
+    const parsedContact = ContactSchema.parse(data)
+    return parsedContact
   },
 
   async update(
     id: number,
     payload: Partial<CreateContactPayload>,
+    userToken: string,
   ): Promise<Contact> {
     const response = await fetch(`${API_BASE_URL}/contacts/${id}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Token': userToken,
+      },
       body: JSON.stringify(payload),
     })
 
     if (!response.ok) throw new Error('Failed to update contact')
 
     const data = await response.json()
-    return getContact(data)
+
+    const parsedContact = ContactSchema.parse(data)
+    return parsedContact
   },
 
-  async delete(id: string): Promise<void> {
+  async delete(id: number, userToken: string): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/contacts/${id}`, {
       method: 'DELETE',
+      headers: { 'User-Token': userToken },
     })
 
     if (!response.ok) throw new Error('Failed to delete contact')

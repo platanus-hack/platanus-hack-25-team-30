@@ -15,6 +15,7 @@ import {
   TrendingUp,
   Users,
 } from 'lucide-react'
+import type { ContactStats } from '@/lib/types/person-stats-types'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
@@ -47,17 +48,6 @@ interface AverageStats {
   needAttentionCount: number
 }
 
-interface ContactStats {
-  score: number
-  totalInteractions: number
-  lastContact: string
-  lastConversation: string
-  streak: number
-  responseTime: string
-  communicationBalance: string
-  healthStatus: string
-}
-
 interface MockTipOrInsight {
   type: 'tip' | 'stat' | 'globalStat' | 'reminder'
   message: string
@@ -67,37 +57,36 @@ interface MockTipOrInsight {
 type SortKeys = keyof ContactStats
 // Get sort keys from ContactStats
 const sortKeys: Array<SortKeys> = [
-  'score',
+  'healthScore',
   'totalInteractions',
   'lastContact',
-  'lastConversation',
-  'streak',
-  'responseTime',
+  'lastConversationTopic',
+  'responseTimeMin',
   'communicationBalance',
 ]
 
 function RouteComponent() {
   const state = useStore(authStore)
   if (!state) return null
-  const { user, token } = state
+  const { token } = state
 
   const [sortBy, setSortBy] = useState<string>('')
-  const { contacts } = useContacts()
+  const { contacts } = useContacts(token)
   const contactsStats: Array<ContactStats> = Array(contacts.length)
     .fill(null)
     .map(() => ({
-      score: Math.floor(Math.random() * 100),
-      totalInteractions: Math.floor(Math.random() * 200),
-      lastContact: `${Math.floor(Math.random() * 10) + 1} days ago`,
-      lastConversation: 'Discussed project updates',
-      streak: Math.floor(Math.random() * 20),
-      responseTime: `${Math.floor(Math.random() * 48) + 1} hrs`,
-      communicationBalance: Math.random() > 0.5 ? 'Balanced' : 'Unbalanced',
       healthStatus: 'Bad',
+      healthScore: Math.floor(Math.random() * 100),
+      totalInteractions: Math.floor(Math.random() * 200),
+      lastContact: new Date('2020-01-01T06:15:00Z').toISOString(),
+      lastConversationTopic: 'Discussed project updates',
+      streak: Math.floor(Math.random() * 20),
+      responseTimeMin: Math.floor(Math.random() * 120) + 1,
+      communicationBalance: Math.random(),
     }))
 
   const contactsPhotoUrl = contacts.map((contact) => {
-    const { data: photoData } = useContactPhoto(contact.id)
+    const { data: photoData } = useContactPhoto(contact.id, token)
     const avatarUrl = photoData ? URL.createObjectURL(photoData) : null
     return avatarUrl
   })

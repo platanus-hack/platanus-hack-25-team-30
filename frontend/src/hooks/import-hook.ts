@@ -1,14 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { importApi } from '@/integrations/api/import-api'
 
-export function useImportWhatsApp() {
+export function useImportWhatsApp(userToken: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: ({
       contactId,
       file,
-      userToken,
     }: {
       contactId: string
       file: File
