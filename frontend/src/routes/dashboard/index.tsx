@@ -326,7 +326,7 @@ function RouteComponent() {
         </div>
 
         {/* Tips & Insights Card Stack */}
-        <div className="my-8">
+        <div className="my-8 w-full items-center justify-center flex flex-col">
           {/* Agrandamos la letra */}
           <Badge
             variant="outline"
