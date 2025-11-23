@@ -193,7 +193,7 @@ export function CardStack({
     <div className="w-full max-w-2xl mx-auto">
       {/* Card Stack Container */}
       <div
-        className="relative h-40 mb-6 cursor-grab active:cursor-grabbing"
+        className="relative h-60 md:h-40 mb-6 cursor-grab active:cursor-grabbing"
         onMouseDown={handleDragStart}
         onMouseMove={handleDragMove}
         onMouseUp={handleDragEnd}
