@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-router'
 import * as React from 'react'
 import { z } from 'zod'
-import { authActions, authStore } from '@/lib/schemas/stores/auth-store'
+import { authActions, authStore } from '@/lib/stores/auth-store'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'

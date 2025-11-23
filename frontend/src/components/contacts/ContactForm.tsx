@@ -1,7 +1,7 @@
 import { useForm } from '@tanstack/react-form'
 import { AlertCircle, Upload, X } from 'lucide-react'
-import * as React from 'react'
-import type {Contact} from '@/lib/types/contact-types';
+import { useState } from 'react';
+import type { Contact } from '@/lib/types/contact-types';
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,15 +21,15 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
 
   const isEditMode = !!contact
 
-  const [imagePreview, setImagePreview] = React.useState<File>(
-    contact?.avatar || '',
+  const [selectedFile, setSelectedFile] = useState<File | undefined>(
+    contact?.avatar || undefined
   )
 
-  const [tagInputValue, setTagInputValue] = React.useState('')
+  const [tagInputValue, setTagInputValue] = useState('')
 
   const form = useForm({
     defaultValues: {
-      avatar: contact?.avatar || '',
+      avatar: contact?.avatar || undefined,
       firstName: contact?.firstName || '',
       lastName: contact?.lastName || '',
       relationshipType: (contact?.category as any) || 'Familia',
@@ -48,7 +48,7 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
 
       const dataWithAvatar = {
         ...result.data,
-        avatar: value.avatar || imagePreview,
+        avatar: value.avatar || selectedFile,
       }
 
       if (isEditMode) {
@@ -124,10 +124,10 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                 >
                   Imagen de Perfil
                 </Label>
-                {imagePreview && (
+                {selectedFile && (
                   <div className="mb-4">
                     <img
-                      src={imagePreview}
+                      src={URL.createObjectURL(selectedFile)}
                       alt="Preview"
                       className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
                     />
@@ -142,19 +142,15 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                     <span className="text-sm font-medium text-gray-700">
                       Selecciona una imagen
                     </span>
-                    <Input
+                      <Input
                       id="avatar"
                       type="file"
                       accept="image/*"
-                      onChange={async (e) => {
+                      onChange={(e) => {
                         const file = e.target.files?.[0]
                         if (file) {
-                          const reader = new FileReader()
-                          reader.onloadend = () => {
-                            setImagePreview(reader.result as string)
-                            field.handleChange(reader.result as string)
-                          }
-                          reader.readAsDataURL(file)
+                          setSelectedFile(file)
+                          field.handleChange(file)
                         }
                       }}
                       className="hidden"

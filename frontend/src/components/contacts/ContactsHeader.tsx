@@ -2,7 +2,7 @@ import { Filter, Plus, Search } from 'lucide-react'
 import { useStore } from '@tanstack/react-store'
 import { useState } from 'react'
 import { ContactForm } from './ContactForm'
-import { searchContactStore } from '@/lib/schemas/stores/contact-store'
+import { searchContactStore } from '@/lib/stores/contact-store'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 

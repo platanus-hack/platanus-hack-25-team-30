@@ -23,7 +23,7 @@ export const contactsApi = {
 
     const response = await fetch(`${API_BASE_URL}/contacts/${id}/photo`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'user-token': 'test' },
+      headers: { 'user-token': 'test' },
       body: formData,
     })
 
@@ -41,6 +41,19 @@ export const contactsApi = {
 
     const data = await response.json()
     return data.map(getContact)
+  },
+
+  async getPhoto(contactId: string): Promise<Blob> {
+    const response = await fetch(
+      `${API_BASE_URL}/contacts/${contactId}/photo`,
+      {
+        headers: { 'user-token': 'test' },
+      },
+    )
+
+    if (!response.ok) throw new Error('Failed to fetch contact photo')
+
+    return response.blob()
   },
 
   async getById(id: string): Promise<Contact> {
