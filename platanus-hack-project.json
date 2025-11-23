@@ -1,4 +1,5 @@
 {
-  "project-name": "<FILL THIS>",
-  "project-description-spanish": "<FILL THIS>"
+  "project-name": "DeepBonds",
+  "project-description-spanish": "DeepBonds es una aplicación innovadora que utiliza inteligencia artificial para fortalecer tus relaciones personales. A través de simulaciones de conversaciones con IA que replican la personalidad de tus contactos, te ayuda a prepararte para interacciones importantes, mejorar tu comunicación y mantener conexiones más profundas mediante el seguimiento inteligente de interacciones y recomendaciones personalizadas.",
+  "deploy-url": "https://hackathon.buzeta.net/"
 }
