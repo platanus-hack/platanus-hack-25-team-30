@@ -21,7 +21,7 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
 
   const isEditMode = !!contact
 
-  const [imagePreview, setImagePreview] = React.useState<string>(
+  const [imagePreview, setImagePreview] = React.useState<File>(
     contact?.avatar || '',
   )
 
@@ -160,16 +160,6 @@ export function ContactForm({ onClose, contact }: ContactFormProps) {
                       className="hidden"
                     />
                   </label>
-                  <Input
-                    type="text"
-                    placeholder="o pega una URL de imagen aquí"
-                    value={field.state.value || ''}
-                    onChange={(e) => {
-                      setImagePreview(e.target.value)
-                      field.handleChange(e.target.value)
-                    }}
-                    className="bg-white border-red-200 placeholder-gray-400"
-                  />
                 </div>
                 {field.state.meta.errors.length > 0 && field.state.meta.isTouched && (
                   <div className="flex items-start gap-2 mt-3 text-red-600">

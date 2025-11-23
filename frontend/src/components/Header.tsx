@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { authActions, authStore } from '@/lib/stores/auth-store'
+import { authActions, authStore } from '@/lib/schemas/stores/auth-store'
 import { Card } from '@/components/ui/card'
 
 export default function Header() {

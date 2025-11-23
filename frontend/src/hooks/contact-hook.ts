@@ -15,9 +15,13 @@ export function useContacts() {
   })
 
   const createMutation = useMutation({
-    mutationFn: (data: CreateContactData) => {
+    mutationFn: async (data: CreateContactData) => {
       const payload = createContactPayload(data)
-      return contactsApi.create(payload)
+      const contact = await contactsApi.create(payload)
+      if (data.avatar) {
+        return await contactsApi.assignPhoto(contact.id, data.avatar)
+      }
+      return contact
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] })

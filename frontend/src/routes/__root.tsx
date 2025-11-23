@@ -1,6 +1,6 @@
 import { Outlet, createRootRouteWithContext, redirect } from '@tanstack/react-router'
 import Header from '../components/Header'
-import { authStore } from '@/lib/stores/auth-store'
+import { authStore } from '@/lib/schemas/stores/auth-store'
 
 import type { QueryClient } from '@tanstack/react-query'
 

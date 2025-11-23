@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { useStore } from '@tanstack/react-store'
 import { ContactsHeader } from '@/components/contacts/ContactsHeader'
 import { ContactsGrid } from '@/components/contacts/ContactsGrid'
-import { searchContactStore } from '@/lib/stores/contact-store'
+import { searchContactStore } from '@/lib/schemas/stores/contact-store'
 import { useContacts } from '@/hooks/contact-hook'
 
 export const Route = createFileRoute('/contacts/')({
