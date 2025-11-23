@@ -401,23 +401,23 @@ function RouteComponent() {
                       cy="48"
                       r="40"
                       stroke={
-                        mergedContact.stats.score >= 85
+                        mergedContact.stats.healthScore >= 85
                           ? '#16a34a'
-                          : mergedContact.stats.score >= 60
+                          : mergedContact.stats.healthScore >= 60
                             ? '#f97316'
                             : '#dc2626'
                       }
                       strokeWidth="8"
                       fill="none"
-                      strokeDasharray={`${(mergedContact.stats.score / 100) * 251.2} 251.2`}
+                      strokeDasharray={`${(mergedContact.stats.healthScore / 100) * 251.2} 251.2`}
                       strokeLinecap="round"
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span
-                      className={`text-lg font-bold ${getHealthColor(mergedContact.stats.score)}`}
+                      className={`text-lg font-bold ${getHealthColor(mergedContact.stats.healthScore)}`}
                     >
-                      {mergedContact.stats.score}/100
+                      {mergedContact.stats.healthScore}/100
                     </span>
                     <span className="text-xs text-gray-600">
                       {mergedContact.stats.healthStatus}
@@ -451,7 +451,7 @@ function RouteComponent() {
                     <span className="text-gray-600">Response Time</span>
                   </div>
                   <span className="text-sm font-medium text-gray-900">
-                    {mergedContact.stats.responseTime}
+                    {mergedContact.stats.responseTimeMin}
                   </span>
                 </div>
                 <div className="flex items-center gap-6">
@@ -460,9 +460,7 @@ function RouteComponent() {
                     <span className="text-gray-600">Streak</span>
                   </div>
                   <span className="text-sm font-medium text-gray-900">
-                    {mergedContact.stats.streak
-                      ? `${mergedContact.stats.streak} weeks`
-                      : 'None'}
+                    1 week
                   </span>
                 </div>
               </div>
@@ -476,7 +474,8 @@ function RouteComponent() {
                   <p className="text-sm font-medium text-gray-900">
                     {mergedContact.stats.communicationBalance}
                   </p>
-                  {mergedContact.stats.communicationBalance === 'Balanced' ? (
+                  {mergedContact.stats.communicationBalance >= 0.4 &&
+                  mergedContact.stats.communicationBalance <= 0.6 ? (
                     <ArrowUpRight className="w-4 h-4 text-green-600" />
                   ) : (
                     <ArrowDownRight className="w-4 h-4 text-orange-500" />
@@ -485,7 +484,7 @@ function RouteComponent() {
               </div>
 
               {/* Warning if needed */}
-              {mergedContact.stats.score < 65 && (
+              {mergedContact.stats.healthScore < 65 && (
                 <div className="mt-3 p-2 bg-orange-50 rounded-md flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-orange-600" />
                   <span className="text-xs text-orange-800 font-medium">
