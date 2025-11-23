@@ -86,6 +86,7 @@ async def chat_websocket(websocket: WebSocket, person_id: int, token: str = ""):
         notes=person.notes or "",
         birthday=str(person.birthday),
         message_history=message_history,
+        user_name=user.username,
     )
 
     try:
@@ -105,7 +106,7 @@ async def chat_websocket(websocket: WebSocket, person_id: int, token: str = ""):
                     continue
 
                 # Get response from LLM
-                llm_response = await chat_with_person(
+                llm_response = chat_with_person(
                     client=client,
                     system_prompt=system_prompt,
                     user_message=user_message,

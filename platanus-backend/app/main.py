@@ -1,6 +1,9 @@
 import logging
 
+from dotenv import load_dotenv
 from fastapi import Depends, FastAPI
+
+load_dotenv()
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
 
